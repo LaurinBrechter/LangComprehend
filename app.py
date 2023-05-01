@@ -1,6 +1,6 @@
 import dash
 import dash_cytoscape as cyto  
-from dash import dcc, html
+from dash import Dash, dcc, html, Input, Output, State, MATCH, Patch, ALL
 from dash.dependencies import Output, Input, State
 import pandas as pd  
 import numpy as np
@@ -18,6 +18,9 @@ app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, "style.css
 app.layout = html.Div([
     
     html.H1("LangComprehend"),
+    dbc.Row([
+        html.H3("This app helps you to generate comprehesion questions for a given text."),
+    ]),
     dbc.Row([
         dbc.Col([
             dmc.TextInput(
@@ -61,7 +64,10 @@ app.layout = html.Div([
             )
         ]),
     dbc.Row([
-        dmc.Button("Get Text", variant="gradient", id="get-text-btn"),
+        # dmc.Button("Get Text", variant="gradient", id="get-text-btn"),
+        dbc.Col([
+            dmc.Button("Get Text", id="get-text-btn", variant="gradient")
+        ])
     ]),
     dmc.TextInput(
         label="Text",
@@ -69,14 +75,16 @@ app.layout = html.Div([
         value=None
     ),
     dbc.Row([
-        dmc.Button("Generate Questions", variant="gradient", id="gen-question-btn"),
+        dbc.Col([
+            dmc.Button("Generate Questions", variant="gradient", id="gen-question-btn"),
+        ])
     ]),
     dmc.Accordion(
         id="questions"
     )
 
-], style={"margin": 80})
 ])
+], id="main-div")
 
 
 @app.callback(
@@ -107,7 +115,7 @@ def get_text(button, language, video_url):
 
 def get_questions(button, text, num_questions, API_KEY, language):
     if button:
-        print("Generating questions: ", button, text[:200], num_questions)
+        print("Generating questions: ", button, text[:10], num_questions)
         if text and num_questions:
             prompt = PromptTemplate(
                         input_variables=["n_questions", "text", "language"],
@@ -141,44 +149,59 @@ def get_questions(button, text, num_questions, API_KEY, language):
                             [example[i][0],
                             dmc.TextInput(
                                 label="Answer",
-                                id=f"user_answer_{i+1}",
-                                debounce=True,
+                                id={
+                                    "type": "user_answer", "index": i
+                                }
                             ),
                             dmc.TextInput(
                                 label="Model Correction",
-                                id=f"model_correction_{i+1}",
+                                id={
+                                    "type": "model_correction",
+                                    "index": i,
+                                }
+                                # id=f"model_correction_{i+1}",
                             ),
+                            dbc.Button("Submit Answer", id={"type":"submit-btn", "index":i})# , variant="gradient")
                             ]
                         ),
                     ],
                     value=f"{i+1}",
-                ) for i in range(1)]
+                ) for i in range(2)]
         else:
             return ["Please fill in all the fields"]
 
 
 
 @app.callback(
-    Output("model_correction_1", "value"),
-    Input("user_answer_1", "n_submit"),
-    State("language-select", "value")
+    Output({"type":"model_correction", "index":MATCH}, "value"),
+    # State("questions", "children"),
+    Input({"type":"submit-btn", "index":MATCH}, "n_clicks"),
+    State({'type': 'submit-btn', 'index': MATCH}, 'id'),
+    State({"type": "user_answer", "index":MATCH}, "value"),
+    State("language-select", "value"),
+    prevent_initial_call=True
 )
 
-def check_answer(submit, language):
+def check_answer(submit,id, user_answer, language):
+    print("Checking answer:", submit,id, user_answer, language)
     if submit:
-        print("Checking answer: ", submit, language)
-        return "Checking answer..."
         pt_check = PromptTemplate(
             input_variables=["answer", "language"],
             template="""
-            Can you please check if the following piece delimited by triple backticks is grammatically correct.
-            If it is not correct please also explain why it isn't in the following language: {language}
+            For the following, only give your answer in the following language: {language}
+            - Can you please check if the following piece delimited by triple backticks
+              is grammatically correct. 
+            - Please also pay attention to the use of accents.
+            - If the text is not correct please also explain why it isn't in the following language: {language}
+            - Do not provide the translation of the sentence in your answer.
             ```
             {answer}
             ```
             """)
-        formatted = pt_check.format(answer=answer, language=language)
+        formatted = pt_check.format(answer=user_answer, language=language)
+        llm = OpenAI(model_name="gpt-3.5-turbo")
         res = llm(formatted)
+        return res
 
 
 

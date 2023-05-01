@@ -11,3 +11,8 @@
     width: 100%;
     border: 5px;
 }
+
+#main-div {
+    background-color: antiquewhite;
+    margin: 10px;
+}
