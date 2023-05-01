@@ -1,0 +1,13 @@
+#output {
+    background-color: aqua;
+    height: 100px;
+    width: 100%;
+    border: 5px;
+}
+
+#text-output {
+    background-color: aqua;
+    height: 100px;
+    width: 100%;
+    border: 5px;
+}
