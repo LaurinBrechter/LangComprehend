@@ -10,7 +10,11 @@ from langchain import PromptTemplate
 from langchain.llms import OpenAI
 import dash_mantine_components as dmc
 from funcs import get_video_text
-
+from langchain.chat_models import ChatOpenAI
+from langchain.schema import (
+    HumanMessage,
+    SystemMessage
+)
 
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP, "style.css"])
 
@@ -99,9 +103,29 @@ def get_text(button, language, video_url):
         print("Getting text: ", button, language, video_url)
         if language and video_url:
             res = get_video_text(video_url, language)
-            return [res]
+            return res
         else:
             return ["Please fill in all the fields"]
+
+
+def cut_text(text, frac):
+    splitted_text = text.split()
+    n_words = len(splitted_text)
+    print(n_words)
+    lim = int(frac*n_words)
+    text_red = splitted_text[:lim]
+    return " ".join(text_red), n_words
+
+
+def get_response_chat(language, text):
+
+    messages = [
+        SystemMessage(content=f"""You are a helpful assistant that only provides answers in {language}"""),
+        HumanMessage(content=text),
+    ]
+
+    return messages
+
 
 
 @app.callback(
@@ -115,38 +139,64 @@ def get_text(button, language, video_url):
 
 def get_questions(button, text, num_questions, API_KEY, language):
     if button:
-        print("Generating questions: ", button, text[:10], num_questions)
+        print(len(text))
+        print("Generating questions: ", button, text, num_questions)
         if text and num_questions:
+            # prompt = PromptTemplate(
+            #             input_variables=["n_questions", "text", "language"],
+            #             template="""Can you come up with {n_questions} questions that test the comprehension that a user 
+            #                 has for the following text delimited by triple backticks? 
+            #                 ```{text}```. 
+            #                 Please provide the answers to the questions in {language}.
+                            
+            #                 Delimit the question answer pairs with the following sign: '###' (three hashes).
+            #                 Delimit each question and answer with the following sign: '---' (three dashes).
+            #                 """
+            #         )
+            
             prompt = PromptTemplate(
                         input_variables=["n_questions", "text", "language"],
-                        template="""Can you come up with {n_questions} questions that test the comprehension that a user 
-                            has for the following text delimited by triple backticks? 
+                        template="""
+                            - Can you come up with {n_questions} questions that test the comprehension that a user has for the following text delimited by triple backticks? 
                             ```{text}```. 
-                            Please provide the answers to the questions in {language}.
-                            
-                            Delimit the question answer pairs with the following sign: '###' (three hashes).
-                            Delimit each question and answer with the following sign: '---' (three dashes).
+                            - Please provide the answers to the questions in {language}.
+                            - Start each question with the following sign: 'Question: '.
+                            - Start each answer with the following sign: 'Answer: '.
                             """
-                            # Return the questions and answers as a json object with the keys "answer" and "question".
+                            # - Delimit each question-answer pair with the following sign: '###' (three hashes).
                     )
-            
-            # formatted = prompt.format(n_questions=num_questions, text=text[:500], language=language)
-            example = [("Question: Quels sont les trois enjeux majeurs entre Taiwan et la Chine selon le texte ?", 
-                "Answer: Les trois enjeux majeurs entre Taiwan et la Chine sont historiques, politiques, et stratégiques.---Les enjeux majeurs entre Taiwan et la Chine sont: le premier est historique; le deuxième est politique; le troisième est stratégique."),
 
-                ("Question: Quelle serait l'une des conséquences d'un blocus de Taiwan par la Chine ?",
-                "Answer: Une des conséquences d'un blocus de Taiwan par la Chine serait une perte économique importante pour la Chine et pour le monde entier. Selon l'institut de recherche Rhodium Group, le manque à gagner commercial avec le reste du monde serait de 270 milliards de dollars. À l'échelle mondiale, c'est 2000 milliards de dollars. Cela à cause de l'effondrement des bourses, des perturbations dans le commerce maritime international, de la chute des investissements ou encore de la rupture des chaînes d'approvisionnement")]
-            # llm = OpenAI(model_name="gpt-3.5-turbo")
-            # res = llm(formatted)
+            formatted = prompt.format(n_questions=num_questions, text=cut_text(text, 0.3), language=language)
+            # example = [("Question: Quels sont les trois enjeux majeurs entre Taiwan et la Chine selon le texte ?", 
+            #     "Answer: Les trois enjeux majeurs entre Taiwan et la Chine sont historiques, politiques, et stratégiques.---Les enjeux majeurs entre Taiwan et la Chine sont: le premier est historique; le deuxième est politique; le troisième est stratégique."),
 
-            # qas = res.split("###")
-            # qas = [qa.split("---") for qa in qas]
+            #     ("Question: Quelle serait l'une des conséquences d'un blocus de Taiwan par la Chine ?",
+            #     "Answer: Une des conséquences d'un blocus de Taiwan par la Chine serait une perte économique importante pour la Chine et pour le monde entier. Selon l'institut de recherche Rhodium Group, le manque à gagner commercial avec le reste du monde serait de 270 milliards de dollars. À l'échelle mondiale, c'est 2000 milliards de dollars. Cela à cause de l'effondrement des bourses, des perturbations dans le commerce maritime international, de la chute des investissements ou encore de la rupture des chaînes d'approvisionnement")]
+            llm = OpenAI(model_name="gpt-3.5-turbo")
+            # chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
+            # messages = get_response_chat(language, text)
+            # res = chat(messages)
+            res = llm(formatted)
+            """
+            1. Quel est le principal enjeu entre Taïwan et la Chine ?
+            ### Le principal enjeu entre Taïwan et la Chine est la revendication de la Chine sur la souveraineté de Taïwan, malgré le fait que l'île est devenue un État démocratique souverain de fait et que la Chine considère toujours que l'île lui appartient.###
+
+            2. Pourquoi la présidente taïwanaise a-t-elle augmenté les tensions entre Taïwan et la Chine ?
+            ###La présidente taïwanaise, Tsai Ing-wen, a augmenté les tensions entre Taïwan et la Chine avec sa position indépendantiste et en étant moins conciliante que son prédécesseur avec le régime chinois, ce qui a incité Pékin à accroître considérablement sa stratégie de pression politique, économique et militaire. 
+            ###
+            """
+            print(res)
+            # qs = res.content.split("###")[:-1][::2]
+            # print(qs)
+            qas = res.split("Question:")[1:]
+            print(qas)
+            # qas = [qa.split("Answer:") for qa in qas[:-1]]
 
             return [dmc.AccordionItem(
                     [
                         dmc.AccordionControl(f"Question {i+1}"),
                         dmc.AccordionPanel(
-                            [example[i][0],
+                            [qas[i],
                             dmc.TextInput(
                                 label="Answer",
                                 id={
@@ -166,7 +216,7 @@ def get_questions(button, text, num_questions, API_KEY, language):
                         ),
                     ],
                     value=f"{i+1}",
-                ) for i in range(2)]
+                ) for i in range(len(qas))]
         else:
             return ["Please fill in all the fields"]
 
