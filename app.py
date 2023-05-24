@@ -1,5 +1,4 @@
 import dash
-import dash_cytoscape as cyto  
 from dash import Dash, dcc, html, Input, Output, State, MATCH, Patch, ALL
 from dash.dependencies import Output, Input, State
 import pandas as pd  
@@ -9,7 +8,7 @@ import plotly.graph_objects as go
 from langchain import PromptTemplate
 from langchain.llms import OpenAI
 import dash_mantine_components as dmc
-from funcs import get_video_text
+from funcs import get_video_text, output_parser, get_n_tokens
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import (
     HumanMessage,
@@ -78,6 +77,17 @@ app.layout = html.Div([
         id="text-output",
         value=None
     ),
+    dmc.TextInput(
+        label="N Tokens",
+        id="n-tokens",
+        value=0
+    ),
+    dmc.TextInput(
+        label="Cost ($)",
+        id="cost",
+        value=0
+    ),
+    # html.Div(id="n-tokens"),
     dbc.Row([
         dbc.Col([
             dmc.Button("Generate Questions", variant="gradient", id="gen-question-btn"),
@@ -89,6 +99,29 @@ app.layout = html.Div([
 
 ])
 ], id="main-div")
+
+
+
+@app.callback(
+    Output("n-tokens", "value"),
+    Input("text-output", "value"),
+)
+
+def show_n_tokens(text):
+    if text:
+        return get_n_tokens(text)
+
+
+
+@app.callback(
+    Output("cost", "value"),
+    Input("n-tokens", "value"),
+)
+
+def show_cost(n_tokens):
+    if n_tokens:
+        print(type(n_tokens))
+        return str(n_tokens) * 0.002
 
 
 @app.callback(
@@ -142,18 +175,6 @@ def get_questions(button, text, num_questions, API_KEY, language):
         print(len(text))
         print("Generating questions: ", button, text, num_questions)
         if text and num_questions:
-            # prompt = PromptTemplate(
-            #             input_variables=["n_questions", "text", "language"],
-            #             template="""Can you come up with {n_questions} questions that test the comprehension that a user 
-            #                 has for the following text delimited by triple backticks? 
-            #                 ```{text}```. 
-            #                 Please provide the answers to the questions in {language}.
-                            
-            #                 Delimit the question answer pairs with the following sign: '###' (three hashes).
-            #                 Delimit each question and answer with the following sign: '---' (three dashes).
-            #                 """
-            #         )
-            
             prompt = PromptTemplate(
                         input_variables=["n_questions", "text", "language"],
                         template="""
@@ -167,36 +188,21 @@ def get_questions(button, text, num_questions, API_KEY, language):
                     )
 
             formatted = prompt.format(n_questions=num_questions, text=cut_text(text, 0.3), language=language)
-            # example = [("Question: Quels sont les trois enjeux majeurs entre Taiwan et la Chine selon le texte ?", 
-            #     "Answer: Les trois enjeux majeurs entre Taiwan et la Chine sont historiques, politiques, et stratégiques.---Les enjeux majeurs entre Taiwan et la Chine sont: le premier est historique; le deuxième est politique; le troisième est stratégique."),
-
-            #     ("Question: Quelle serait l'une des conséquences d'un blocus de Taiwan par la Chine ?",
-            #     "Answer: Une des conséquences d'un blocus de Taiwan par la Chine serait une perte économique importante pour la Chine et pour le monde entier. Selon l'institut de recherche Rhodium Group, le manque à gagner commercial avec le reste du monde serait de 270 milliards de dollars. À l'échelle mondiale, c'est 2000 milliards de dollars. Cela à cause de l'effondrement des bourses, des perturbations dans le commerce maritime international, de la chute des investissements ou encore de la rupture des chaînes d'approvisionnement")]
-            llm = OpenAI(model_name="gpt-3.5-turbo")
-            # chat = ChatOpenAI(temperature=0, model_name="gpt-3.5-turbo")
-            # messages = get_response_chat(language, text)
-            # res = chat(messages)
+            llm = OpenAI(model_name="gpt-3.5-turbo", openai_api_key=API_KEY)
             res = llm(formatted)
-            """
-            1. Quel est le principal enjeu entre Taïwan et la Chine ?
-            ### Le principal enjeu entre Taïwan et la Chine est la revendication de la Chine sur la souveraineté de Taïwan, malgré le fait que l'île est devenue un État démocratique souverain de fait et que la Chine considère toujours que l'île lui appartient.###
+            
+            questions, answers = output_parser(res, llm)
 
-            2. Pourquoi la présidente taïwanaise a-t-elle augmenté les tensions entre Taïwan et la Chine ?
-            ###La présidente taïwanaise, Tsai Ing-wen, a augmenté les tensions entre Taïwan et la Chine avec sa position indépendantiste et en étant moins conciliante que son prédécesseur avec le régime chinois, ce qui a incité Pékin à accroître considérablement sa stratégie de pression politique, économique et militaire. 
-            ###
-            """
-            print(res)
-            # qs = res.content.split("###")[:-1][::2]
-            # print(qs)
-            qas = res.split("Question:")[1:]
-            print(qas)
-            # qas = [qa.split("Answer:") for qa in qas[:-1]]
+
+            print("Questions Formatted:\n", questions)
+            print("Answers Formatted:\n", answers)
+
 
             return [dmc.AccordionItem(
                     [
                         dmc.AccordionControl(f"Question {i+1}"),
                         dmc.AccordionPanel(
-                            [qas[i],
+                            [questions[i],
                             dmc.TextInput(
                                 label="Answer",
                                 id={
@@ -216,7 +222,7 @@ def get_questions(button, text, num_questions, API_KEY, language):
                         ),
                     ],
                     value=f"{i+1}",
-                ) for i in range(len(qas))]
+                ) for i in range(len(questions))]
         else:
             return ["Please fill in all the fields"]
 
