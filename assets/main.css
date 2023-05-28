@@ -1,18 +1,11 @@
-#output {
-    background-color: aqua;
-    height: 100px;
-    width: 100%;
-    border: 5px;
+body {
+    background-color: white;
+    margin: 10px;
+    overflow-x: hidden;
 }
 
 #text-output {
-    background-color: aqua;
-    height: 100px;
-    width: 100%;
-    border: 5px;
-}
-
-#main-div {
-    background-color: antiquewhite;
-    margin: 10px;
+    height: 250px;
+    overflow: scroll;
+    margin-top: 20px;
 }

@@ -1,0 +1,11 @@
+.text-output {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: #0c0c0d;
+  margin: 0.5em;
+  padding: 0.5em;
+  border: 1px solid #282c34;
+  border-radius: 0.5em;
+  background-color: #edebeb;
+  text-align: center;
+}
