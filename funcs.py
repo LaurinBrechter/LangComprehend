@@ -1,7 +1,26 @@
+from pymongo.results import InsertOneResult
+from pymongo import MongoClient
 from langchain.document_loaders import YoutubeLoader
+from langchain import PromptTemplate
 from langchain.llms import OpenAI
 import ast
 import tiktoken
+from typing import List
+import datetime
+from langchain.schema import (
+    HumanMessage,
+    SystemMessage
+)
+from langchain.chat_models import ChatOpenAI
+
+
+def cut_text(text, frac):
+    splitted_text = text.split()
+    n_words = len(splitted_text)
+    print(n_words)
+    lim = int(frac*n_words)
+    text_red = splitted_text[:lim]
+    return " ".join(text_red), n_words
 
 
 def get_video_text(url, language):
@@ -32,6 +51,66 @@ def output_parser(text, llm):
     return questions, answers
 
 
-def get_n_tokens(text):
+def get_n_tokens(text) -> int:
     enc = tiktoken.get_encoding("cl100k_base")
     return len(enc.encode(text))
+
+
+def insert_query_to_db(
+        client:MongoClient, 
+        db_name:str, 
+        collection_name:str, 
+        text:str, 
+        n_questions:int, 
+        language:str, 
+        url:str, 
+        questions:list, 
+        answers:list) -> InsertOneResult:
+    
+    document = {
+    "text":text,
+    "time_created":datetime.datetime.utcnow(),
+    "n_questions":n_questions,
+    "language_code":language,
+    "url":url,
+    "questions":questions,
+    "answers":answers
+    }
+    
+    db = client[db_name]
+    collection = db[collection_name]
+
+    res = collection.insert_one(document)
+
+    return res
+
+
+def get_response_chat(language, text):
+
+    messages = [
+        SystemMessage(content=f"""You are a helpful assistant that only provides answers in {language}"""),
+        HumanMessage(content=text),
+    ]
+
+    return messages
+
+
+def get_qa_topic(num_questions, text, language, fraction):
+    prompt = PromptTemplate(
+                            input_variables=["n_questions", "text", "language"],
+                            template="""
+                                - Can you come up with {n_questions} questions that test the comprehension that a user has for the following text delimited by triple backticks? 
+                                ```{text}```. 
+                                - Please provide the answers to the questions in {language}.
+                                - Start each question with the following sign: 'Question: '.
+                                - Start each answer with the following sign: 'Answer: '.
+                                """
+                                # - Delimit each question-answer pair with the following sign: '###' (three hashes).
+                        )
+
+    formatted = prompt.format(n_questions=num_questions, text=cut_text(text, frac=fraction), language=language)
+    return formatted
+                
+    
+def get_vocab(text:str) -> list:
+    return text.split()
