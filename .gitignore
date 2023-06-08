@@ -2,3 +2,4 @@ lang_comprehend_venv/
 db/
 langcomprehend-react/node_modules/
 __pycache__/
+*.ipynb

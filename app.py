@@ -4,16 +4,20 @@ from dash.dependencies import Output, Input, State
 import pandas as pd  
 import numpy as np
 import dash_bootstrap_components as dbc
+import spacy
 import plotly.graph_objects as go
 from langchain import PromptTemplate
 from langchain.llms import OpenAI
+from langchain.chat_models import ChatOpenAI
 import dash_mantine_components as dmc
 from funcs import (
     get_video_text, 
     output_parser, 
     get_n_tokens, 
     insert_query_to_db,
-    get_qa_topic
+    get_qa_topic,
+    get_vocab,
+    add_vocab_to_db
 )
 
 
@@ -22,6 +26,9 @@ from pymongo import MongoClient
 
 client = MongoClient()
 db = client.test
+
+
+nlp = spacy.load('fr_core_news_sm')
 
 
 
@@ -62,6 +69,8 @@ app.layout = html.Div([
                     {"value": "it", "label": "Italian"},
                     {"value": "de", "label": "German"},
                     {"value": "en", "label": "English"},
+                    {"value": "pt-BR", "label": "Portuguese (Brazilian)"},
+                    {"value": "es", "label": "Spanish"},
                 ],
                 # style={"width": 200, "marginBottom": 10},
             ),
@@ -75,18 +84,26 @@ app.layout = html.Div([
                 step=1,
                 id="num-questions"
             )
-        ]),
+        ])
+    ]),
     dbc.Row([
-        # dmc.Button("Get Text", variant="gradient", id="get-text-btn"),
         dbc.Col([
             dmc.Button("Get Text", id="get-text-btn", variant="gradient")
         ])
     ]),
-    html.Div(
-        id="text-output"
-    ),
-    
-    
+    dbc.Row([
+        dbc.Col([
+            html.Div(
+                id="text-output"
+            )
+        ]),
+        dbc.Col([
+            html.Div(
+            id="vocabs"
+            )
+        ])
+
+    ]),
     dbc.Row([
         dbc.Col([
             dmc.Button("Generate Questions", variant="gradient", id="gen-question-btn"),
@@ -104,13 +121,21 @@ app.layout = html.Div([
                 id="cost",
                 value=0
             ),
+        ]),
+        dbc.Col([
+            dmc.Button("Save Vocabulary", id="save-vocab-btn", variant="gradient")
         ])
     ]),
     dmc.Accordion(
         id="questions"
-    )
+    ),
 
-])
+
+    html.Div(id="vocab-trainer-container"),
+
+
+    html.Div(id="dummy-out")
+
 ], id="main-div")
 
 
@@ -127,6 +152,22 @@ def show_n_tokens(text):
 
 
 @app.callback(
+    Output("dummy-out", "children"),
+    State("text-output", "children"),
+    # State("vocabs", "children"),
+    Input("save-vocab-btn", "n_clicks"),
+)
+
+def save_vocab(text, n_clicks):
+    if n_clicks:
+        vocs, ents = get_vocab(nlp, text, ["PUNCT", "SPACE", "NUM"])
+        add_vocab_to_db(client=client, db_name="test", collection_name="vocabs", vocab=vocs, u_id=10)
+        return "Vocab saved"
+    else:
+        return "No vocab to save"
+
+
+@app.callback(
     Output("cost", "value"),
     Input("n-tokens", "value"),
 )
@@ -138,6 +179,7 @@ def show_cost(n_tokens):
 
 @app.callback(
     Output("text-output", "children"),
+    Output("vocabs", "children"),
     Input("get-text-btn", "n_clicks"),
     State("language-select", "value"),
     State("video_url", "value"), 
@@ -148,9 +190,12 @@ def get_text(button, language, video_url):
         print("Getting text: ", button, language, video_url)
         if language and video_url:
             res = get_video_text(video_url, language)
-            return res
+            
+            vocs, ents = get_vocab(nlp, res, ["PUNCT", "SPACE", "NUM"])
+            # print(vocs)
+            return res, html.Ul([html.Li(x) for x in list(set(vocs.keys()))])
         else:
-            return "Please fill in all the fields"
+            return "Please fill in all the fields", "No vocabs to show"
 
 
 @app.callback(
@@ -164,34 +209,34 @@ def get_text(button, language, video_url):
 
 def get_questions(button, text, num_questions, API_KEY, language):
     if button:
-        print(len(text))
         print("Generating questions: ", button, text[:100], num_questions)
         if text and num_questions:
             llm = OpenAI(model_name="gpt-3.5-turbo", openai_api_key=API_KEY)
-            formatted = get_qa_topic(num_questions, text, language, 0.3)
+            formatted = get_qa_topic(num_questions, text, language, 0.1)
             res = llm(formatted)
 
-            print("Questions generated")
-            
-            questions, answers = output_parser(res, llm)
+            print("Output generated")
+            print(f"<{res}>")
+            topics, questions, answers = output_parser(res, llm)
 
 
             print("Questions Formatted:\n", questions)
             print("Answers Formatted:\n", answers)
+            print("Topics formatted:\n", topics)
 
-            insertion_response = insert_query_to_db(
-                client=client, 
-                db_name="test",
-                collection_name="test_col",
-                text=text,
-                n_questions=num_questions,
-                language=language,
-                url=None,
-                questions=questions,
-                answers=answers
-                )
+            # insertion_response = insert_query_to_db(
+            #     client=client, 
+            #     db_name="test",
+            #     collection_name="test_col",
+            #     text=text,
+            #     n_questions=num_questions,
+            #     language=language,
+            #     url=None,
+            #     questions=questions,
+            #     answers=answers
+            #     )
             
-            print(insertion_response)
+            # print(insertion_response)
 
 
             return [dmc.AccordionItem(
@@ -250,11 +295,13 @@ def check_answer(submit,id, user_answer, language):
             {answer}
             ```
             """)
+        API_KEY = "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"
+
         formatted = pt_check.format(answer=user_answer, language=language)
-        llm = OpenAI(model_name="gpt-3.5-turbo")
+        llm = OpenAI(model_name="gpt-3.5-turbo", openai_api_key=API_KEY)
         res = llm(formatted)
         return res
     
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8888)
