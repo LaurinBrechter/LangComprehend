@@ -1,9 +1,21 @@
 import { useState } from 'react'
 import './App.css'
-import Topbar from './components/Topbar'
+import Topbar from './components/topbar/Topbar'
+
+// import mongoose from 'mongoose'
 import Comprehension from './components/comprehension/Comprehension'
 
 function App() {
+
+  async function connect() {
+    await mongoose.connect('mongodb://lang-comprehend-db:Tu5r17fglaOvr7OHRkA9dBJPEBojmZ7Y683SqPxis1WQwTcPeXmJLGxmF1n9asNcSQ2QqYI2HC4WACDbtnHOvg==@lang-comprehend-db.mongo.cosmos.azure.com:10255/?ssl=true&replicaSet=globaldb&retrywrites=false&maxIdleTimeMS=120000&appName=@lang-comprehend-db@');
+  
+    // use `await mongoose.connect('mongodb://user:password@127.0.0.1:27017/test');` if your database has auth enabled
+  }
+
+  console.log(connect())
+
+
   const [count, setCount] = useState(0)
   const handleSubmit = (e) =>{
     // console.log(e)
