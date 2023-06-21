@@ -10,7 +10,7 @@ from langchain import PromptTemplate
 from langchain.llms import OpenAI
 from langchain.chat_models import ChatOpenAI
 import dash_mantine_components as dmc
-from funcs import (
+from app.funcs import (
     get_video_text, 
     output_parser, 
     get_n_tokens, 

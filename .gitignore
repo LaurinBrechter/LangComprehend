@@ -1,5 +1,7 @@
 lang_comprehend_venv/
 db/
-langcomprehend-react/node_modules/
+langcomprehend-react/
 __pycache__/
 *.ipynb
+api_backend/api_venv/
+lc/backend/
