@@ -15,19 +15,21 @@
     padding: 15px;
   }
   
-  form {
+form {
     margin: 20px;
     background-color: rgb(237, 224, 224);
     padding: 20px;
     display: flex;
     justify-content: space-between;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
   }
   
-  .comprehension {
+.comprehension {
     width: 100%;
   }
   
-  .vocabs {
+.vocabs {
     border: 1px solid #282c34;
     border-radius: 0.5em;
     background-color: #edebeb;
@@ -35,7 +37,7 @@
     font-size: large;
   }
   
-  .text-voc-container {
+.text-voc-container {
     display: flex;
     justify-content: space-between;
     margin: 20px
