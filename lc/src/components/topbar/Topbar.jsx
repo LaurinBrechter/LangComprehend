@@ -7,7 +7,7 @@ export default function Topbar({menuOpen, setMenuOpen}) {
       <h3>An LLM powered language learning app</h3>
 		  <div className="section-container">
 		    <a className="section-link" href="comprehension">Comprehension</a>
-			  <a className="section-link" href="vocab">Vocab</a>
+			<a className="section-link" href="vocab">Vocab</a>
 		  </div>
   	</div>
   )

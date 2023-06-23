@@ -1,21 +1,26 @@
 .text-container {
-    color: #0c0c0d;
     border: 1px solid #282c34;
     border-radius: 0.5em;
     background-color: rgb(37, 37, 39);
-    text-align: center;
-    height: 400px;
-    width: 94%;
     overflow: scroll;
     width: 70%;
     margin-right: 20px;
     padding: 30px;
   }
 
-h3 {
-  text-align: center;
-}
+.vocab-container {
+  border: 1px solid #282c34;
+  border-radius: 0.5em;
+  /* background-color: #edebeb; */
+  color: rgb(212, 201, 201);
+  background-color: rgb(37, 37, 39);
+  width: 30%;
+  font-size: large;
+  padding: 30px;
+  height: 400px;
+  overflow: scroll;
 
+}
 
 .text-output {
   width: 100%;
@@ -37,51 +42,54 @@ h3 {
   display: none;
 }
   
-form {
-    margin: 20px;
-    background-color: rgb(237, 224, 224);
-    padding: 20px;
-    display: flex;
-    justify-content: space-between;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-    background-color: #15172b;
-}
+
   
 .comprehension {
     width: 100%;
 }
   
-.vocab-container {
-    border: 1px solid #282c34;
-    border-radius: 0.5em;
-    /* background-color: #edebeb; */
-    background-color: rgb(37, 37, 39);
-    width: 30%;
-    font-size: large;
-    padding: 30px;
-  }
+.vocabs {
+  width: 100%;
+  height: 100%;
+}
+
+
   
 .text-voc-container {
     display: flex;
     justify-content: space-between;
-    margin: 20px
+    margin: 20px;
+}
+
+.vocab-container::-webkit-scrollbar {
+  display: none;
 }
 
 label {
   border: #0c0c0d 1px solid;
   border-radius: 0.5em;
   padding: 5px;
-  /* background-color: green; */
-  background-color: #303245;
+  background-color: #616161;
   font-weight: 600;
 }
 
 input {
-  /* background-color: turquoise; */
-  /* background-color: #15172b; */
-  background-color: #303245;
-  color: #eee;
+  background-color: #4e4f54;
   border-radius: 12px;
   padding: 4px 20px 0;
+  border-width: 0px;
+}
+
+form {
+  margin: 20px;
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+  background-color: rgb(37, 37, 39);
+}
+
+h3 {
+  text-align: center;
 }
