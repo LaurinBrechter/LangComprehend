@@ -1,18 +1,22 @@
 from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
+import spacy
 try: 
     from funcs import (
         get_video_text,
-        get_qa_topic
+        get_qa_topic,
+        get_vocab
     )
 except:
     from app.funcs import (
         get_video_text,
-        get_qa_topic
+        get_qa_topic,
+        get_vocab
     )
 from pydantic import BaseModel
 from typing import Annotated
+
 
 class Text(BaseModel):
     text:str
@@ -40,6 +44,9 @@ app.add_middleware(
 )
 
 
+nlp = spacy.load('fr_core_news_sm')
+
+
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
@@ -50,10 +57,18 @@ async def downloadVideo(url:str="https://www.youtube.com/watch?v=rxOQtLbaeuw&ab_
     return {"video_text": get_video_text(url, language)}
 
 
+@app.post("/generateVocab")
+async def generateVocab(text:Text, language:str="fr") -> dict:
+    v = list(get_vocab(nlp, text.text, ["PUNCT", "SPACE", "NUM"])["vocab"].keys())
+
+    print(v)
+    return {"vocs_list": v}
+
 @app.get("/generateQuestions")
 async def generateQuestions(text:Text, num_questions:Annotated[int, Path(title="the number of questions that should ge generated", ge=1, le=10)]=3, language:str="fr", fraction:float=1):
     res = get_qa_topic(num_questions, text, language, fraction)
     return {"questions": res}
+
 
 
 

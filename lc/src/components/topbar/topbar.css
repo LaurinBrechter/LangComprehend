@@ -1,11 +1,12 @@
 .topbar {
-    background-color: rgb(134, 134, 161);
+    background-color: rgb(37, 37, 39);
     display: flex;
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding: 0% 5%;
     width: 90%;
+    color: white
 }
 
 .section-link {

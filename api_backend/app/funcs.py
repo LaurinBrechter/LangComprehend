@@ -157,4 +157,4 @@ def get_vocab(pipeline, text:str, irrel:list) -> dict:
     #     print(voc[vocab], np.unique(voc[vocab]))
     #     voc[vocab] = list(set(voc[vocab]))
 
-    return voc, ents
+    return {"vocab":voc, "entities":ents}
