@@ -15,4 +15,4 @@ COPY ./app/main.py /code/app/
 COPY ./app/funcs.py /code/app/
 
 # 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
