@@ -1,0 +1,19 @@
+name: Fast API docker build push
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Build docker image for FastAPI
+        run: docker build -t laurin_brechter/fastapi-docker:0.0.1 ./api_backend
