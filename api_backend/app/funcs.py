@@ -1,18 +1,18 @@
-import numpy as np
 from pymongo.results import InsertOneResult
 from pymongo import MongoClient
 from langchain.document_loaders import YoutubeLoader
 from langchain import PromptTemplate
-from langchain.llms import OpenAI
 import ast
 import tiktoken
-from typing import List
 import datetime
 from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
+from .data_structs import Text, Languages, Worksheet
+from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
+
 
 
 def cut_text(text, frac):
@@ -118,23 +118,39 @@ def get_response_chat(language, text):
     return messages
 
 
-def get_qa_topic(num_questions, text, language, fraction):
-    prompt = PromptTemplate(
-                            input_variables=["n_questions", "text", "language"],
-                            template="""
-                                - Can you come up with {n_questions} questions that test the comprehension that a user has for the following text delimited by triple backticks? 
-                                Please also provide the 3 primary topics of the text.
-                                ```{text}```. 
-                                - Please provide the answers to the questions in {language}.
-                                - Start each question with the following sign: 'Question: '.
-                                - Start each answer with the following sign: 'Answer: '.
-                                - Start the topics with the following sign:'Topics: '.
-                                """
-                                # - Delimit each question-answer pair with the following sign: '###' (three hashes).
-                        )
+def get_qa_topic(num_questions, text:Text, language, fraction) -> str:
+    
+    
 
-    formatted = prompt.format(n_questions=num_questions, text=cut_text(text, frac=fraction), language=language)
-    return formatted
+    load_dotenv()
+    model = ChatOpenAI(temperature=0)
+
+    prompt = PromptTemplate(
+        input_variables=["n_questions", "text", "language"],
+        # template="""
+        #     - Can you come up with {n_questions} questions that test the comprehension 
+        #     that a user has for the following text delimited by triple backticks? 
+        #     Please also provide the 3 primary topics of the text.
+        #     ```{text}```. 
+        #     - Please provide the answers to the questions in {language}.
+        #     - Start each question with the following sign: 'Question: '.
+        #     - Start each answer with the following sign: 'Answer: '.
+        #     - Start the topics with the following sign:'Topics: '.
+        #     """
+        template="""
+        - Can you come up with {n_questions} questions that test the comprehension 
+            that a user has for the following text delimited by triple backticks? 
+            Please also provide the 3 primary topics of the text.
+            ```{text}```.
+        - Please provide the answers to the questions in {language}.
+        - Once you have {n_questions} questions, answers and topics provide them as a json object with the following keys: 'questions', 'answers', 'topics'.
+        """
+            # - Delimit each question-answer pair with the following sign: '###' (three hashes).
+    )
+
+    formatted = prompt.format(n_questions=num_questions, text=cut_text(text.text, frac=fraction), language=language)
+    
+    return model.predict(formatted)
                 
     
 def get_vocab(pipeline, text:str, irrel:list) -> dict:

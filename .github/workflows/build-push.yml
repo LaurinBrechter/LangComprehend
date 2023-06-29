@@ -2,9 +2,9 @@ name: Fast API docker build push
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "vocab-trainer-feature-branch"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "vocab-trainer-feature-branch"]
 
 permissions:
   contents: read

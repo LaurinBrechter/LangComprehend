@@ -2,29 +2,14 @@ from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
 import spacy
-try: 
-    from funcs import (
-        get_video_text,
-        get_qa_topic,
-        get_vocab
-    )
-except:
-    from app.funcs import (
+from app.data_structs import Text, Languages, Worksheet
+from app.funcs import (
         get_video_text,
         get_qa_topic,
         get_vocab
     )
 from pydantic import BaseModel
 from typing import Annotated
-
-
-class Text(BaseModel):
-    text:str
-
-
-class Languages(str, Enum):
-    pass
-
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -64,12 +49,17 @@ async def generateVocab(text:Text, language:str="fr") -> dict:
     print(v)
     return {"vocs_list": v}
 
-@app.get("/generateQuestions")
-async def generateQuestions(text:Text, num_questions:Annotated[int, Path(title="the number of questions that should ge generated", ge=1, le=10)]=3, language:str="fr", fraction:float=1):
+@app.post("/generateQuestions")
+async def generateQuestions(
+    text:Text, 
+    num_questions:Annotated[int, Path(title="the number of questions that should ge generated", ge=1, le=10)]=3, 
+    language:str="fr", fraction:float=1
+    ) -> str:
+    
     res = get_qa_topic(num_questions, text, language, fraction)
-    return {"questions": res}
+
+    return res
+    
 
 
-
-
-# uvicorn main:app --reload
+# uvicorn app.main:app --reload
