@@ -15,3 +15,6 @@ class Worksheet(BaseModel):
 class VocabAnswer(BaseModel):
     original_text: str
     user_translation: str
+
+class VocabularyList(BaseModel):
+    vocs_list: list[str] = []

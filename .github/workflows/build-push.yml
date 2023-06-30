@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   
-  test:
+  test_api:
     runs-on: ubuntu-latest
 
     steps:
@@ -29,10 +29,11 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python -m pytest api_backend/tests
 
-  build:
+  build_api:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
       - name: Build docker image for FastAPI
         run: docker build -t laurin_brechter/fastapi-docker:0.0.1 ./api_backend
+      

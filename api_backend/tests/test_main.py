@@ -4,7 +4,17 @@ from app.data_structs import Text, Languages, Worksheet
 import json
 
 client = TestClient(app)
-examples = json.load(open("tests/examples.json", "r"))
+examples = json.load(open("api_backend/tests/examples.json", "r"))
+
+
+def test_generate_worksheet():
+    response = client.post(
+        url="/generateWorksheet",
+        json={
+            "text": examples["texts"][0]
+        }
+    )
+    assert response.status_code == 200
 
 def test_read_main():
     response = client.get("/")
@@ -22,7 +32,7 @@ def test_generate_vocab():
 
 def test_correct_vocab():
     response = client.post(
-        "/correctVocab", 
+        url="/correctVocab", 
         params={
           "language": "fr",  
         },

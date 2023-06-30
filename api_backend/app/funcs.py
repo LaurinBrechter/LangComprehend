@@ -1,4 +1,4 @@
-from pymongo.results import InsertOneResult
+from pymongo.results import InsertOneResult, InsertManyResult
 from pymongo import MongoClient
 from langchain.document_loaders import YoutubeLoader
 from langchain import PromptTemplate
@@ -9,7 +9,13 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
-from .data_structs import Text, Languages, Worksheet, VocabAnswer
+from .data_structs import (
+    Text, 
+    Languages, 
+    Worksheet, 
+    VocabAnswer,
+    VocabularyList
+)
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 
@@ -24,7 +30,7 @@ def cut_text(text, frac):
     return " ".join(text_red), n_words
 
 
-def get_video_text(url, language):
+def get_video_text(url:str, language) -> str:
     loader = YoutubeLoader.from_youtube_url(url, language=language)
     result = loader.load()
     return result[0].page_content
@@ -94,12 +100,17 @@ def insert_query_to_db(
     return res
 
 
-def add_vocab_to_db(client:MongoClient, db_name:str, collection_name:str, vocab:dict, u_id:int):
+def add_vocab_to_db(
+        client:MongoClient, 
+        db_name:str, 
+        collection_name:str, 
+        vocab:VocabularyList, 
+        u_id:int
+    ) -> InsertManyResult:
     docs = []
-    
-    for v in list(vocab.items()):
-        docs.append({"u_id":u_id, "vocab":v[0], "inserted_at":datetime.datetime.utcnow(), "forms":v[1]})
-
+    for v in vocab.vocs_list:
+        # docs.append({"u_id":u_id, "vocab":v[0], "inserted_at":datetime.datetime.utcnow(), "forms":v[1]})
+        docs.append({"u_id":u_id, "vocab":v, "inserted_at":datetime.datetime.utcnow()})
 
     db = client[db_name]
     collection = db[collection_name]
