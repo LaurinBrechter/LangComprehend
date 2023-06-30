@@ -9,7 +9,7 @@ from langchain.schema import (
     HumanMessage,
     SystemMessage
 )
-from .data_structs import Text, Languages, Worksheet
+from .data_structs import Text, Languages, Worksheet, VocabAnswer
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
 
@@ -117,10 +117,32 @@ def get_response_chat(language, text):
 
     return messages
 
+def correct_vocab(vocab_solution:VocabAnswer) -> str:
+    answer = vocab_solution.user_translation
+    original_text = vocab_solution.original_text
+
+    load_dotenv()
+    model = ChatOpenAI(temperature=0)
+
+    return model.predict(
+        f"""
+        You will be given an original text and its translation. Please state whether the translation is correct or not.
+
+        Original text: 
+        {original_text}
+
+        Translation:
+        {answer}
+
+        you MUST answer with 'True' if the translation correct and 'False' otherwiese.
+        """
+    )
+
+
+
+
 
 def get_qa_topic(num_questions, text:Text, language, fraction) -> str:
-    
-    
 
     load_dotenv()
     model = ChatOpenAI(temperature=0)

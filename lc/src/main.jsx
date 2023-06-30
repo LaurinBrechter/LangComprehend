@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 import Topbar from './components/topbar/Topbar'
 import Comprehension from './components/comprehension/Comprehension'
+import Vocab from './components/vocab/Vocab';
 
 
 const router = createBrowserRouter([
@@ -31,7 +32,23 @@ const router = createBrowserRouter([
     element: 
       <>
         <Topbar/>
-        <div>Vocab</div>
+        <Vocab/>
+      </>
+  },
+  {
+    path: "/about",
+    element:
+      <>
+        <Topbar/>
+        <div>About</div>
+      </>
+  },
+  {
+    path: "/Grammar",
+    element:
+      <>
+        <Topbar/>
+        <div>Grammar</div>
       </>
   }
 ]);

@@ -2,7 +2,7 @@ import "./comprehension.css"
 import { useState } from "react";
 // const { MongoClient } = require("mongodb");
 
-export default function Comprehension({menuOpen, setMenuOpen}) {
+export default function Comprehension({}) {
 
 
   async function getVideoData(url = 'http://localhost:8000/downloadVideo', params = {}) {

@@ -2,11 +2,12 @@ from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
 from enum import Enum
 import spacy
-from app.data_structs import Text, Languages, Worksheet
+from app.data_structs import Text, Languages, Worksheet, VocabAnswer
 from app.funcs import (
         get_video_text,
         get_qa_topic,
-        get_vocab
+        get_vocab,
+        correct_vocab
     )
 from pydantic import BaseModel
 from typing import Annotated
@@ -59,7 +60,11 @@ async def generateQuestions(
     res = get_qa_topic(num_questions, text, language, fraction)
 
     return res
+
+
+@app.post("/correctVocab")
+async def correctVocab(text:VocabAnswer, language:str="fr") -> str:
+    return correct_vocab(text)
+
     
-
-
 # uvicorn app.main:app --reload
