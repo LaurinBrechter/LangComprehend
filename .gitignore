@@ -5,3 +5,4 @@ __pycache__/
 *.ipynb
 api_backend/api_venv/
 lc/backend/
+.env
