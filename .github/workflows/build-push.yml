@@ -27,7 +27,11 @@ jobs:
       - name: Run tests
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python -m pytest api_backend/tests
+          VOC_COLL_NAME: vocabs
+          DB_NAME: test
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+
+        run: python -m pytest
 
   build_api:
     runs-on: ubuntu-latest

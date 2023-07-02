@@ -115,7 +115,7 @@ def add_vocab_to_db(
     db = client[db_name]
     collection = db[collection_name]
 
-    collection.insert_many(docs)
+    return collection.insert_many(docs)
 
 
 

@@ -1,15 +1,8 @@
 import json
 from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
-from enum import Enum
 import spacy
-from app.data_structs import (
-    Text, 
-    Languages, 
-    Worksheet, 
-    VocabAnswer,
-    VocabularyList
-)
+from app.data_structs import *
 from app.funcs import (
         get_video_text,
         get_qa_topic,
@@ -17,9 +10,10 @@ from app.funcs import (
         correct_vocab,
         add_vocab_to_db
     )
-from pydantic import BaseModel
 from typing import Annotated
 from pymongo import MongoClient
+from dotenv import load_dotenv
+import os
 
 origins = [
     "http://localhost.tiangolo.com",
@@ -38,7 +32,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-client = MongoClient("mongodb://localhost:27017")
+load_dotenv()
+
+client = MongoClient(os.environ["MONGO_URI"])
+DB_NAME = os.environ["DB_NAME"]
+voc_col_name = os.environ["VOC_COLL_NAME"]
 nlp = spacy.load('fr_core_news_sm')
 
 
@@ -56,7 +54,6 @@ async def downloadVideo(url:str="https://www.youtube.com/watch?v=rxOQtLbaeuw&ab_
 async def generateVocab(text:Text, language:str="fr") -> dict:
     v = list(get_vocab(nlp, text.text, ["PUNCT", "SPACE", "NUM"])["vocab"].keys())
 
-    print(v)
     return {"vocs_list": v}
 
 @app.post("/generateWorksheet")
@@ -71,15 +68,32 @@ async def generateWorksheet(
     return json.loads(res)
 
 
-@app.post("/correctVocab")
+@app.post("/vocabs/correctVocab")
 async def correctVocab(text:VocabAnswer, language:str="fr") -> str:
     return correct_vocab(text)
 
 
-@app.post("/insertVocabs")
-async def insertVocabs(vocabs:VocabularyList) -> list:
-    
-    add_vocab_to_db(client, "dev", "vocabs", vocabs, 1)
+@app.post("/vocabs/insertVocabs")
+async def insertVocabs(vocabs:VocabularyList) -> bool:
+    res = add_vocab_to_db(client, DB_NAME, voc_col_name, vocabs, 1)
+    return res.acknowledged    
 
-    return True    
+@app.get("/vocabs/getExamples")
+async def getExamples(n_examples:int) -> dict:
+    return {"examples": ["Je suis un homme", "Je suis une femme", "Je suis un garçon", "Je suis une fille"]}
+
+
+@app.get("/vocabs/total")
+async def getTotalVocabs(u_id:int) -> int:
+    coll = client[DB_NAME][voc_col_name]
+    return len(list(coll.find({"u_id": u_id}, {"_id": 0, "vocab": 1})))
+
+@app.get("/vocabs/getAll")
+async def getAll(u_id:int) -> dict:
+    coll = client[DB_NAME][voc_col_name]
+
+    return {"vocabs": [i["vocab"] for i in list(coll.find({"u_id": u_id}, {"_id": 0, "vocab": 1}))]}
+
+
+
 # uvicorn app.main:app --reload

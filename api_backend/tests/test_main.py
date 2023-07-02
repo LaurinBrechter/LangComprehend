@@ -2,6 +2,9 @@ from fastapi.testclient import TestClient
 from app.main import app
 from app.data_structs import Text, Languages, Worksheet
 import json
+from dotenv import load_dotenv
+
+load_dotenv()
 
 client = TestClient(app)
 examples = json.load(open("api_backend/tests/examples.json", "r"))
@@ -32,7 +35,7 @@ def test_generate_vocab():
 
 def test_correct_vocab():
     response = client.post(
-        url="/correctVocab", 
+        url="/vocabs/correctVocab", 
         params={
           "language": "fr",  
         },
