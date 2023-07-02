@@ -3,8 +3,7 @@
 }
 
 .vocab-trainer-container {
-    height: 10vh;
-    margin-top: 2vh;
+    height: 50vh;
 }
 
 .vocab-page {
@@ -13,4 +12,10 @@
     flex-direction: column;
     margin-left: 5vw;
     width: 90vw;
+}
+
+.vocab-page h3 {
+    text-align: left;
+    color: white;
+    margin-bottom: 10px;
 }

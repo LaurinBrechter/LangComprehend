@@ -13,41 +13,41 @@ import Vocab from './components/vocab/Vocab';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: 
+    element:
       <>
-        <Topbar/>
+        <Topbar />
         <div>Home</div>
       </>
   },
   {
     path: "/comprehension",
-    element: 
+    element:
       <>
-        <Topbar/>
-        <Comprehension/>
+        <Topbar />
+        <Comprehension />
       </>
   },
   {
     path: "/vocab",
-    element: 
+    element:
       <>
-        <Topbar/>
-        <Vocab/>
+        <Topbar />
+        <Vocab />
       </>
   },
   {
     path: "/about",
     element:
       <>
-        <Topbar/>
+        <Topbar />
         <div>About</div>
       </>
   },
   {
-    path: "/Grammar",
+    path: "/grammar",
     element:
       <>
-        <Topbar/>
+        <Topbar />
         <div>Grammar</div>
       </>
   }

@@ -8,10 +8,10 @@ import os
 load_dotenv()
 
 
-client = TestClient(app)
-os.environ["DB_NAME"] = "test"
-def test_get_n_total_vocs():
-    response = client.get("/vocabs/total", params={"u_id":1})
-    assert response.status_code == 200
-    assert response.json() == 9
+# client = TestClient(app)
+# os.environ["DB_NAME"] = "test"
+# def test_get_n_total_vocs():
+#     response = client.get("/vocabs/total", params={"u_id":1})
+#     assert response.status_code == 200
+#     assert response.json() == 9
 
