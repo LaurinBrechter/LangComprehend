@@ -30,6 +30,7 @@ jobs:
           VOC_COLL_NAME: vocabs
           DB_NAME: test
           MONGO_URI: ${{ secrets.MONGO_URI }}
+          WORK_SHEET_COLL_NAME: worksheets
 
         run: python -m pytest
 
