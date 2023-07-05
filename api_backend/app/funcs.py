@@ -36,34 +36,34 @@ def get_video_text(url:str, language) -> str:
     return result[0].page_content
 
 
-def output_parser(text, llm):
-    questions = ast.literal_eval(llm(
-        f"""
-        Please parse the following text in such a way that all the Questions are in one Python list.
+# def output_parser(text, llm):
+#     questions = ast.literal_eval(llm(
+#         f"""
+#         Please parse the following text in such a way that all the Questions are in one Python list.
 
-        {text}
+#         {text}
         
-        """
-    ))
+#         """
+#     ))
 
-    answers = ast.literal_eval(llm(
-        f"""
-        Please parse the following text in such a way that all the Answers are in one Python list. Only put the answers in the list.
+#     answers = ast.literal_eval(llm(
+#         f"""
+#         Please parse the following text in such a way that all the Answers are in one Python list. Only put the answers in the list.
 
-        {text}
+#         {text}
         
-        """
-    ))
-    out_str = llm(
-        f"""
-        Please parse the following text in such a way that all the Topics are in one Python list. Only put the topics in the list.
-        {text}
-        """
-    )
-    print(out_str)
-    topics = ast.literal_eval(out_str)
+#         """
+#     ))
+#     out_str = llm(
+#         f"""
+#         Please parse the following text in such a way that all the Topics are in one Python list. Only put the topics in the list.
+#         {text}
+#         """
+#     )
+#     print(out_str)
+#     topics = ast.literal_eval(out_str)
 
-    return topics, questions, answers
+#     return topics, questions, answers
 
 
 def get_n_tokens(text) -> int:
@@ -153,7 +153,7 @@ def correct_vocab(vocab_solution:VocabAnswer) -> str:
 
 
 
-def get_qa_topic(num_questions, text:Text, language, fraction) -> str:
+def get_qa_topic(num_questions, text:Text, language, fraction, dummy=True) -> str:
 
     load_dotenv()
     model = ChatOpenAI(temperature=0)
@@ -182,11 +182,30 @@ def get_qa_topic(num_questions, text:Text, language, fraction) -> str:
     )
 
     formatted = prompt.format(n_questions=num_questions, text=cut_text(text.text, frac=fraction), language=language)
-    
-    return model.predict(formatted)
+    if dummy:
+        return """{
+            "questions": [
+                "Quels sont les trois enjeux majeurs des tensions entre Taïwan et la Chine ?",
+                "Quels sont les obstacles potentiels à une invasion de Taïwan par la Chine ?",
+                "Quelles seraient les conséquences d'un conflit entre Taïwan et la Chine ?"
+            ],
+            "answers": [
+                "Les trois enjeux majeurs des tensions entre Taïwan et la Chine sont historiques, politiques et stratégiques.",
+                "Les obstacles potentiels à une invasion de Taïwan par la Chine sont les montagnes escarpées à l'est de l'île, les infrastructures solides de Taïwan et le large détroit avec des eaux agitées.",
+                "Les conséquences d'un conflit entre Taïwan et la Chine seraient lourdes, notamment un emballement régional, un blocus économique avec des conséquences pour les deux pays et le reste du monde, et des perturbations dans le commerce maritime international."
+            ],
+            "topics": [
+                "Tensions entre Taïwan et la Chine",
+                "Obstacles potentiels à une invasion de Taïwan",
+                "Conséquences d'un conflit entre Taïwan et la Chine"
+            ]
+            }
+            """
+    else:
+        return model.predict(formatted)
                 
     
-def get_vocab(pipeline, text:str, irrel:list) -> dict:
+def get_vocab(pipeline, text:str, irrel:list[str]) -> dict:
     doc = pipeline(text)
     
     voc = {}

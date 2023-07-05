@@ -1,3 +1,4 @@
+import datetime
 import json
 from fastapi import FastAPI, Path
 from fastapi.middleware.cors import CORSMiddleware
@@ -37,6 +38,7 @@ load_dotenv()
 client = MongoClient(os.environ["MONGO_URI"])
 DB_NAME = os.environ["DB_NAME"]
 voc_col_name = os.environ["VOC_COLL_NAME"]
+work_sheet_col_name = os.environ["WORK_SHEET_COLL_NAME"]
 nlp = spacy.load('fr_core_news_sm')
 
 
@@ -64,14 +66,23 @@ async def generateWorksheet(
     ) -> Worksheet:
     
     res = get_qa_topic(num_questions, text, language, fraction)
+    print(res)
 
-    return json.loads(res)
+    res_json = json.loads(res)
+
+    insert_doc = res_json.copy()
+    insert_doc["text"] = text.text
+    insert_doc["language"] = language
+    insert_doc["inserted_at"] = datetime.datetime.now()
+
+    client[DB_NAME][work_sheet_col_name].insert_one(insert_doc)
+
+    return res_json
 
 
 @app.post("/vocabs/correctVocab")
 async def correctVocab(text:VocabAnswer, language:str="fr") -> str:
     return correct_vocab(text)
-
 
 @app.post("/vocabs/insertVocabs")
 async def insertVocabs(vocabs:VocabularyList) -> bool:
@@ -82,7 +93,6 @@ async def insertVocabs(vocabs:VocabularyList) -> bool:
 async def getExamples(n_examples:int) -> dict:
     return {"examples": ["Je suis un homme", "Je suis une femme", "Je suis un garçon", "Je suis une fille"]}
 
-
 @app.get("/vocabs/total")
 async def getTotalVocabs(u_id:int) -> int:
     coll = client[DB_NAME][voc_col_name]
@@ -91,9 +101,7 @@ async def getTotalVocabs(u_id:int) -> int:
 @app.get("/vocabs/getAll")
 async def getAll(u_id:int) -> dict:
     coll = client[DB_NAME][voc_col_name]
-
     return {"vocabs": [i["vocab"] for i in list(coll.find({"u_id": u_id}, {"_id": 0, "vocab": 1}))]}
-
 
 
 # uvicorn app.main:app --reload
