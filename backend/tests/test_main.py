@@ -1,6 +1,6 @@
 from fastapi.testclient import TestClient
 from app.main import app
-from app.data_structs import Text, Languages, Worksheet
+from api_backend.app.lib.data_structs import Text, Languages, Worksheet
 import json
 from dotenv import load_dotenv
 

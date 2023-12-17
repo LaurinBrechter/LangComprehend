@@ -10,16 +10,31 @@ import Typography from '@mui/material/Typography';
 export default function Comprehension({ }) {
 
 
-  function getVideoData(url = 'http://localhost:8000/downloadVideo', params = {}) {
+  const language_options = [
+    <option value="fr">French</option>,
+    <option value="pt">Portuguese (Portugal)</option>,
+    <option value="pt">Portuguese (Brazil)</option>,
+    <option value="en">English</option>,
+    <option value="es">Spanish</option>,
+    <option value="ge">German</option>
+  ]
+
+  function getVideoData(url = 'http://localhost:8000/worksheet/downloadVideo', params = {}) {
     console.log("getData")
     let url_w_query = url + '?' + (new URLSearchParams(params)).toString();
 
     fetch(url_w_query, {
       method: 'GET'
     })
-      .then((resp) => resp.json())
+      .then(function (response) {
+        if (!response.ok) {
+          throw new Error("HTTP error " + response.status);
+        } else {
+          return response.json();
+        }
+      })
       .catch(() => {
-        setText("Error")
+        setText("The video you supplied and the language you set do not match. Please make sure that the video has subtitles in the language you set.")
       })
       .then(function (data) {
         let text = data.video_text
@@ -27,7 +42,7 @@ export default function Comprehension({ }) {
       })
   }
 
-  function generateVocab(url = 'http://localhost:8000/generateVocab', params = {}, text) {
+  function generateVocab(url = 'http://localhost:8000/worksheet/vocabFromText', params = {}, text) {
     console.log("generateVoc")
     let url_w_query = url + '?' + (new URLSearchParams(params)).toString();
 
@@ -43,11 +58,12 @@ export default function Comprehension({ }) {
         setVocs("Error")
       })
       .then(function (data) {
+        console.log(data.vocs_list)
         setVocs(data.vocs_list)
       })
   }
 
-  async function generateWorksheet(url = 'http://localhost:8000/generateWorksheet', params = {}) {
+  async function generateWorksheet(url = 'http://localhost:8000/worksheet/generateWorksheet', params = {}) {
     let url_w_query = url + '?' + (new URLSearchParams(params)).toString();
     await fetch(url_w_query, {
       method: 'POST',
@@ -64,46 +80,41 @@ export default function Comprehension({ }) {
         setTopics(data["topics"])
         setQuestions(data["questions"])
       })
-    // })
-
   }
 
 
 
-  const [vocs, setVocs] = useState(["chien", "maison"])
+  const [vocsTest, setVocs] = useState(["chien", "maison"])
   const [text, setText] = useState('Comprehension')
   const [topics, setTopics] = useState([])
   const [questions, setQuestions] = useState(["Q1", "Q2"])
   const [answers, setAnswers] = useState([])
 
   useEffect(() => {
-    generateVocab(
-      'http://localhost:8000/generateVocab',
-      {
-        "language": "fr",
-      },
-      text
-    )
+    if (text != "Error") {
+      generateVocab(
+        'http://localhost:8000/worksheet/vocabFromText',
+        {
+          "language": document.getElementById("lang").value,
+        },
+        text
+      )
+    }
+
   }, [text])
 
   const getSourceHandler = (e) => {
     e.preventDefault(); // prevent page reload
+    console.log(e.target[2].value)
     // 
     getVideoData(
-      'http://localhost:8000/downloadVideo',
+      'http://localhost:8000/worksheet/downloadVideo',
       {
-        "language": e.target[1].value,
+        "language": e.target[2].value,
         "url": e.target[0].value,
       }
     )
 
-    // generateVocab(
-    //   'http://localhost:8000/generateVocab',
-    //   {
-    //     "language": e.target[1].value,
-    //   },
-    //   text
-    // )
   }
 
 
@@ -113,22 +124,31 @@ export default function Comprehension({ }) {
     console.log(e)
 
     generateWorksheet(
-      'http://localhost:8000/generateWorksheet',
+      'http://localhost:8000/worksheet/generateWorksheet',
       {
         "n_questions": e.target[0].value,
-        "language": "fr"
+        "language": document.getElementById("lang").value,
+        "name": "test"
       }
     )
   }
 
-  // const topics = ["Topic1", "Topic2", "Topic3", "Topic4", "Topic5"]
-  const topicList = topics.map((topic) => (
-    <div className="topic">{topic}</div>
+  const onClickTopic = (e) => {
+    e.preventDefault();
+    console.log(e.target.id)
+  }
+
+
+  const topicList = topics.map((topic, idx) => (
+    <div className="topic" id={"topicid-" + idx} onClick={onClickTopic}>{topic}</div>
   ));
 
-  const vocsList = vocs.map((voc) => (
-    <div className="voc">{voc}</div>
+  console.log(vocsTest)
+
+  const vocsList = vocsTest.map((voc) => (
+    <div className="voc" id={"vocid-" + voc}>{voc}</div>
   ));
+
 
   function SimpleAccordion(add_title, acc_text = "") {
     return (
@@ -163,6 +183,9 @@ export default function Comprehension({ }) {
           <div>Language</div>
           <input className="form-input" type="text" name="lang" id="lang" placeholder="Language of the text" defaultValue="fr"></input>
         </div>
+        <select className="lang-select">
+          {language_options}
+        </select>
         {/* <label>
           Language:
           <input type="text" name="lang" id="lang" placeholder="Language of the text" defaultValue="fr"></input>
@@ -170,7 +193,6 @@ export default function Comprehension({ }) {
         <button type="submit">Get Text</button>
       </form>
       <div className="text-voc-container">
-        {/* <div className="text-output">{text}</div> */}
         <div className="normal-container text-container">
           <textarea name="text" id="text" className="output-area text-output" value={text} rows="5"></textarea>
         </div>

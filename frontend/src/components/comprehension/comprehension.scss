@@ -17,9 +17,17 @@
 .vocab-container {
   width: 30%;
   padding: 20px;
-  
   overflow: scroll;
 }
+
+.voc {
+  background-color: green;
+  border-radius: 0.5rem;
+  padding: 5px;
+  margin: 5px;
+  text-align: center;
+}
+
 
 .text-output {
   background-color: rgb(37, 37, 39);

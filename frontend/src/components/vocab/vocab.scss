@@ -9,6 +9,16 @@
     }
 }
 
+.voc-list {
+    height: 100px;
+    overflow: scroll;
+    display: flex;
+    flex-wrap: wrap;
+    width: 20%;
+    height: 100%;
+}
+
+
 .progress-container {
     height: 10vh;
 }
@@ -28,4 +38,8 @@
     > h4 {
         margin-left: 10px;
     }
+}
+
+.lang-select {
+    width: 100px;
 }
