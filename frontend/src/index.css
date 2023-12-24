@@ -1,7 +1,7 @@
 body {
   margin: 0;
-  font-family: sans-serif;
-  background-color: #1e1c1c;
+  font-family: 'Roboto';
+  background-color: #ede6e6;
 }
 
 code {
@@ -10,13 +10,6 @@ code {
 }
 
 .normal-container {
-  border: 1px solid #282c34;
-  background-color: rgb(37, 37, 39);
-  color: rgb(212, 201, 201);
+  background-color: rgb(255, 255, 255);
   font-family: Arial, Helvetica, sans-serif;
-  border-radius: 0.5em;
-}
-
-h3 {
-  color: #EEEE
 }
