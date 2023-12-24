@@ -16,10 +16,7 @@ from lib.dbModels import WorksheetDB, VocabsDB
 from sqlalchemy.orm import Session
 
 origins = [
-    "http://localhost.tiangolo.com",
-    "https://localhost.tiangolo.com",
-    "http://localhost",
-    "http://localhost:5173",
+    "http://localhost:3000",
 ]
 
 app = FastAPI()
@@ -88,9 +85,9 @@ async def generateWorksheet(
     language:str, 
     fraction:float=1,
     db:Session = Depends(get_db)
-    ) -> Worksheet:
+    ) -> int:
     
-    qa = get_qa_topic(num_questions, text, language, fraction, dummy=True)
+    qa = get_qa_topic(num_questions, text, language, fraction, dummy=False)
 
     res_json = json.loads(qa)
 
@@ -111,13 +108,18 @@ async def generateWorksheet(
     )
 
     db.add(ws)
+    db.flush()
+
+    db.refresh(ws)
+    db.commit()
+
+    return ws.id
 
     v = list(get_vocab(pipelines[language], text.text, ["PUNCT", "SPACE", "NUM"])["vocab"].keys())
     
     vocabs = [VocabsDB(language=language, vocabs=vocab) for vocab in v]
     
     db.add_all(vocabs)
-    db.commit()
 
     return res_json
 

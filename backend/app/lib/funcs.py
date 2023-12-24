@@ -1,8 +1,5 @@
-from pymongo.results import InsertOneResult, InsertManyResult
-from pymongo import MongoClient
 from langchain.document_loaders import YoutubeLoader
 from langchain import PromptTemplate
-import ast
 import tiktoken
 import datetime
 from langchain.schema import (
@@ -43,55 +40,55 @@ def get_n_tokens(text) -> int:
     return len(enc.encode(text))
 
 
-def insert_query_to_db(
-        client:MongoClient, 
-        db_name:str, 
-        collection_name:str, 
-        text:str, 
-        n_questions:int, 
-        language:str, 
-        url:str, 
-        questions:list, 
-        answers:list) -> InsertOneResult:
+# def insert_query_to_db(
+#         client:MongoClient, 
+#         db_name:str, 
+#         collection_name:str, 
+#         text:str, 
+#         n_questions:int, 
+#         language:str, 
+#         url:str, 
+#         questions:list, 
+#         answers:list) -> InsertOneResult:
     
-    document = {
-    "text":text,
-    "time_created":datetime.datetime.utcnow(),
-    "n_questions":n_questions,
-    "language_code":language,
-    "url":url,
-    "questions":questions,
-    "answers":answers
-    }
+#     document = {
+#     "text":text,
+#     "time_created":datetime.datetime.utcnow(),
+#     "n_questions":n_questions,
+#     "language_code":language,
+#     "url":url,
+#     "questions":questions,
+#     "answers":answers
+#     }
     
-    db = client[db_name]
-    collection = db[collection_name]
+#     db = client[db_name]
+#     collection = db[collection_name]
 
-    res = collection.insert_one(document)
+#     res = collection.insert_one(document)
 
-    return res
+#     return res
 
 
-def add_vocab_to_db(
-        client:MongoClient, 
-        db_name:str, 
-        collection_name:str, 
-        vocab:VocabularyList, 
-        u_id:int,
-        language:str
-    ) -> InsertManyResult:
-    docs = []
-    db = client[db_name]
-    collection = db[collection_name]
+# def add_vocab_to_db(
+#         client:MongoClient, 
+#         db_name:str, 
+#         collection_name:str, 
+#         vocab:VocabularyList, 
+#         u_id:int,
+#         language:str
+#     ) -> InsertManyResult:
+#     docs = []
+#     db = client[db_name]
+#     collection = db[collection_name]
 
-    old_vocs = [i["vocab"] for i in list(collection.find({"u_id": u_id}, {"_id": 0, "vocab": 1}))]
-    for v in vocab.vocs_list:
-        if v not in old_vocs:
-            docs.append({"u_id":u_id, "vocab":v, "inserted_at":datetime.datetime.utcnow(), "language":language})
+#     old_vocs = [i["vocab"] for i in list(collection.find({"u_id": u_id}, {"_id": 0, "vocab": 1}))]
+#     for v in vocab.vocs_list:
+#         if v not in old_vocs:
+#             docs.append({"u_id":u_id, "vocab":v, "inserted_at":datetime.datetime.utcnow(), "language":language})
 
     
 
-    return collection.insert_many(docs)
+#     return collection.insert_many(docs)
 
 
 
@@ -179,7 +176,9 @@ def get_qa_topic(num_questions, text:Text, language, fraction, dummy=True) -> st
 
     formatted = prompt.format(n_questions=num_questions, text=cut_text(text.text, frac=fraction), language=language)
     
-    model.predict(formatted)
+    return model.predict(formatted)
+
+
                 
     
 def get_vocab(pipeline, text:str, irrel:list[str]) -> dict:

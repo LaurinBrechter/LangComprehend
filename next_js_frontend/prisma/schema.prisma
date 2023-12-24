@@ -1,0 +1,26 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model vocabs {
+  id         Int       @id @default(autoincrement())
+  language   String?   @db.VarChar
+  vocabs     String?   @db.VarChar
+  created_at DateTime? @db.Date
+}
+
+model worksheets {
+  id         Int       @id @default(autoincrement())
+  language   String?   @db.VarChar
+  questions  String[]  @db.VarChar
+  answers    String[]  @db.VarChar
+  topics     String[]  @db.VarChar
+  text       Bytes?
+  created_at DateTime? @db.Date
+  name       String?   @db.VarChar
+}
