@@ -85,7 +85,7 @@ async def generateWorksheet(
     language:str, 
     fraction:float=1,
     db:Session = Depends(get_db)
-    ) -> int:
+    ) -> dict:
     
     qa = get_qa_topic(num_questions, text, language, fraction, dummy=False)
 
@@ -107,13 +107,17 @@ async def generateWorksheet(
         name=name
     )
 
-    db.add(ws)
-    db.flush()
+    # db.add(ws)
+    # db.flush()
 
-    db.refresh(ws)
-    db.commit()
+    # db.refresh(ws)
+    # db.commit()
 
-    return ws.id
+    return {
+        "questions": worksheet["questions"],
+        "answers": worksheet["answers"],
+        "topics": worksheet["topics"],
+    }
 
     v = list(get_vocab(pipelines[language], text.text, ["PUNCT", "SPACE", "NUM"])["vocab"].keys())
     

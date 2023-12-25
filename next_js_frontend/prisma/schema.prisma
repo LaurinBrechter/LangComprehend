@@ -24,3 +24,11 @@ model worksheets {
   created_at DateTime? @db.Date
   name       String?   @db.VarChar
 }
+
+model videos {
+  id         Int       @id @default(autoincrement())
+  language   String?   @db.VarChar
+  url        String?   @db.VarChar
+  created_at DateTime? @db.Date
+  videoText       Bytes?
+}

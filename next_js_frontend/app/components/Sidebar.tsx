@@ -10,6 +10,11 @@ const Sidebar = async () => {
     select: {
       id: true,
       name: true
+    },
+    where: {
+      NOT: {
+        name: null
+      }
     }
   })
 
