@@ -7,10 +7,14 @@ export interface QAProps {
   answers: string[]
 }
 
+function handleSubmit(event: any) {
+  event.preventDefault();
+  console.log(event.target.elements[0].value)
+}
+
+
 const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
   const [questionActive, setQuestionActive] = useState(0)
-
-  console.log(props.questions.at(questionActive))
 
   return (
     <div>
@@ -19,14 +23,16 @@ const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
           {
             props.questions.map((question: string, idx: number) => {
               return (
-                <div id={"item" + (idx + 1)} className="carousel-item w-full flex-col bg-slate-400">
-                  <div>
-                    {question}
+                <div id={"item" + (idx + 1)} key={"item" + (idx + 1)} className="carousel-item w-full flex-col bg-slate-400 rounded-lg">
+                  <div className='p-4'>
+                    <div>
+                      {props.questions.at(questionActive)}
+                    </div>
+                    <form onSubmit={handleSubmit} className='flex mt-3 gap-2'>
+                      <textarea className="textarea textarea-bordered w-full" placeholder="Your Answer"></textarea>
+                      <button type='submit' className="btn">Submit</button>
+                    </form>
                   </div>
-                  <form>
-                    <textarea className="textarea textarea-bordered w-full" placeholder="Your Answer"></textarea>
-                    <div className="btn">Submit</div>
-                  </form>
                 </div>)
             })
           }

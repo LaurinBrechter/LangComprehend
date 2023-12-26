@@ -23,7 +23,7 @@ const NavItems = () => {
     ]
 
     return (
-        <div className='bg-zinc-400 flex gap-6'>
+        <div className='bg-gray-600 flex gap-6'>
             {
                 paths.map((path) => {
                     return (
