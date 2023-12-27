@@ -1,7 +1,6 @@
+import json
 from langchain.document_loaders import YoutubeLoader
-from langchain import PromptTemplate
 import tiktoken
-import datetime
 from langchain.schema import (
     HumanMessage,
     SystemMessage
@@ -9,7 +8,6 @@ from langchain.schema import (
 from lib.data_structs import (
     Text, 
     VocabAnswer,
-    VocabularyList
 )
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
@@ -38,58 +36,6 @@ def get_video_text(url:str, language) -> None | str:
 def get_n_tokens(text) -> int:
     enc = tiktoken.get_encoding("cl100k_base")
     return len(enc.encode(text))
-
-
-# def insert_query_to_db(
-#         client:MongoClient, 
-#         db_name:str, 
-#         collection_name:str, 
-#         text:str, 
-#         n_questions:int, 
-#         language:str, 
-#         url:str, 
-#         questions:list, 
-#         answers:list) -> InsertOneResult:
-    
-#     document = {
-#     "text":text,
-#     "time_created":datetime.datetime.utcnow(),
-#     "n_questions":n_questions,
-#     "language_code":language,
-#     "url":url,
-#     "questions":questions,
-#     "answers":answers
-#     }
-    
-#     db = client[db_name]
-#     collection = db[collection_name]
-
-#     res = collection.insert_one(document)
-
-#     return res
-
-
-# def add_vocab_to_db(
-#         client:MongoClient, 
-#         db_name:str, 
-#         collection_name:str, 
-#         vocab:VocabularyList, 
-#         u_id:int,
-#         language:str
-#     ) -> InsertManyResult:
-#     docs = []
-#     db = client[db_name]
-#     collection = db[collection_name]
-
-#     old_vocs = [i["vocab"] for i in list(collection.find({"u_id": u_id}, {"_id": 0, "vocab": 1}))]
-#     for v in vocab.vocs_list:
-#         if v not in old_vocs:
-#             docs.append({"u_id":u_id, "vocab":v, "inserted_at":datetime.datetime.utcnow(), "language":language})
-
-    
-
-#     return collection.insert_many(docs)
-
 
 
 def get_response_chat(language, text):
@@ -124,9 +70,21 @@ def correct_vocab(vocab_solution:VocabAnswer) -> str:
 
 
 
+def split_into_paras(text, nlp, num_paragraphs=3):
+
+    doc = nlp(text)
+    sents = list(doc.sents)
+    paras = []
+    step_size = len(sents)//num_paragraphs
+
+    for idx in range(0, len(sents), step_size+1):
+        paras.append([i.text for i in sents[idx:idx+step_size+1]])
+
+    return [' '.join(i) for i in paras]
 
 
-def get_qa_topic(num_questions, text:Text, language, fraction, dummy=True) -> str:
+
+def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dict:
 
     if dummy:
         return """{
@@ -148,35 +106,29 @@ def get_qa_topic(num_questions, text:Text, language, fraction, dummy=True) -> st
             }
             """
 
+    paras = split_into_paras(text.text, nlp[language], num_paragraphs=num_questions)
+
     load_dotenv()
     model = ChatOpenAI(temperature=0)
+    qts = {"questions":[], "topics":[], "chunks":[]}
 
-    prompt = PromptTemplate(
-        input_variables=["n_questions", "text", "language"],
-        # template="""
-        #     - Can you come up with {n_questions} questions that test the comprehension 
-        #     that a user has for the following text delimited by triple backticks? 
-        #     Please also provide the 3 primary topics of the text.
-        #     ```{text}```. 
-        #     - Please provide the answers to the questions in {language}.
-        #     - Start each question with the following sign: 'Question: '.
-        #     - Start each answer with the following sign: 'Answer: '.
-        #     - Start the topics with the following sign:'Topics: '.
-        #     """
-        template="""
-        - Can you come up with {n_questions} questions that test the comprehension 
-            that a user has for the following text delimited by triple backticks? 
-            Please also provide the 3 primary topics of the text.
-            ```{text}```.
-        - Please provide the answers to the questions in {language}.
-        - Once you have {n_questions} questions, answers and topics provide them as a json object with the following keys: 'questions', 'answers', 'topics'.
+    for para in paras:
+
+        inp = f"""
+            Please come up with a comprehension question in {language} and a topic about the following paragraph:
+            ----------------
+            {para}
+            ----------------
+            Output your response as a json with the keys 'question' and 'topic'.
         """
-            # - Delimit each question-answer pair with the following sign: '###' (three hashes).
-    )
 
-    formatted = prompt.format(n_questions=num_questions, text=cut_text(text.text, frac=fraction), language=language)
-    
-    return model.predict(formatted)
+        qt = json.loads(model.predict(inp))
+
+        qts["questions"].append(qt["question"])
+        qts["topics"].append(qt["topic"])
+        qts["chunks"].append(para)
+
+    return qts
 
 
                 

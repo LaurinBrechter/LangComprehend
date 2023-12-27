@@ -6,7 +6,7 @@ const Comprehension = () => {
 
   return (
     <div className='p-10 h-[90%]'>
-      <div className='w-full bg-slate-500 h-[80%]'>
+      <div className='w-full h-full flex justify-center items-center'>
         <form className='bg-gray-300 p-3 flex items-center gap-4 h-[10%]' action={getVideoData}>
           <button className='btn'>Generate</button>
           <select id="text-source" className="select max-w-xs text-black" defaultValue={"yt"} name='text-source'>
@@ -21,9 +21,6 @@ const Comprehension = () => {
             <option value={"es"}>Spanish</option>
           </select>
         </form>
-        <div className='bg-gray-100 text-lg h-[90%] overflow-scroll p-5' id="text">
-          Text
-        </div>
       </div>
 
       {/* <Document file="https://arxiv.org/pdf/1209.1727.pdf">

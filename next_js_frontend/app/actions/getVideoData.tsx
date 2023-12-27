@@ -8,8 +8,8 @@ export const getVideoData = async (formData: FormData) => {
 
   const prisma = new PrismaClient()
 
-  let language = formData.get("target-language")
-  const url = formData.get("youtube-link")
+  let language = formData.get("target-language") as string
+  const url = formData.get("youtube-link") as string
 
   let params = { language: language, url: url }
   let url_w_query = "http://localhost:8000/worksheet/downloadVideo" + '?' + (new URLSearchParams(params)).toString();

@@ -3,17 +3,14 @@
 import { PrismaClient } from "@prisma/client"
 import { revalidatePath } from "next/cache"
 
-async function getWorksheet(formData: FormData) {
+async function getWorksheet(id: number, text: string, language: string, formData: FormData) {
 
-  let id = Number(formData.get("id"))
-  let text = formData.get("text")
-  let language = formData.get("language")
-  let name = formData.get("worksheet-name")
   let num_questions = formData.get("num-questions")
+  let worksheet_name = formData.get("worksheet-name") as string
 
   const prisma = new PrismaClient()
 
-  let params = { language: language, num_questions: num_questions, name: name }
+  let params = { language: language, num_questions: num_questions, name: worksheet_name }
   let url_w_query = "http://localhost:8000/worksheet/generateWorksheet" + '?' + (new URLSearchParams(params)).toString();
 
   const res = await fetch(url_w_query, {
@@ -26,6 +23,8 @@ async function getWorksheet(formData: FormData) {
   })
   const data = await res.json()
 
+  console.log(data)
+
   await prisma.worksheets.update({
     where: {
       id: id
@@ -33,7 +32,7 @@ async function getWorksheet(formData: FormData) {
     data: {
       questions: data.questions,
       topics: data.topics,
-      name: name
+      name: worksheet_name
     }
   })
 

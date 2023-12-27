@@ -41,7 +41,8 @@ pipelines = {
     "fr": spacy.load('fr_core_news_sm'),
     "pt": port_pipeline,
     "pt-BR": port_pipeline,
-    "pt-PT": port_pipeline
+    "pt-PT": port_pipeline,
+    "en": spacy.load('en_core_web_sm'),
 }
 
 
@@ -53,6 +54,9 @@ def get_db():
         yield db
     finally:
         db.close()
+
+def get_nlp():
+    return pipelines
 
 
 
@@ -79,15 +83,16 @@ async def vocabFromText(text:Text, language:str, db:Session = Depends(get_db)) -
 
 @app.post("/worksheet/generateWorksheet")
 async def generateWorksheet(
-    name:str,
     text:Text, 
     num_questions:int, 
     language:str, 
-    fraction:float=1,
-    db:Session = Depends(get_db)
+    db:Session = Depends(get_db),
+    nlp = Depends(get_nlp)
     ) -> dict:
     
-    qa = get_qa_topic(num_questions, text, language, fraction, dummy=False)
+    qa = get_qa_topic(num_questions, text, language, nlp, dummy=False)
+
+    return qa
 
     res_json = json.loads(qa)
 
@@ -98,20 +103,6 @@ async def generateWorksheet(
     
     text_bytes = pickle.dumps(text.text)
 
-    ws = WorksheetDB(
-        language=language,
-        questions=worksheet["questions"],
-        answers=worksheet["answers"],
-        topics=worksheet["topics"],
-        text=text_bytes,
-        name=name
-    )
-
-    # db.add(ws)
-    # db.flush()
-
-    # db.refresh(ws)
-    # db.commit()
 
     return {
         "questions": worksheet["questions"],
@@ -128,26 +119,26 @@ async def generateWorksheet(
     return res_json
 
 
-@app.get("/worksheet/getWorksheet")
-async def getWorksheet(worksheet_name:str, db:Session = Depends(get_db)) -> dict:
+# @app.get("/worksheet/getWorksheet")
+# async def getWorksheet(worksheet_name:str, db:Session = Depends(get_db)) -> dict:
     
-    worksheet = db.query(WorksheetDB).filter(WorksheetDB.name == worksheet_name).first()
+#     worksheet = db.query(WorksheetDB).filter(WorksheetDB.name == worksheet_name).first()
 
-    if not worksheet:
-        raise HTTPException(status_code=404, detail="No Worksheet found")
+#     if not worksheet:
+#         raise HTTPException(status_code=404, detail="No Worksheet found")
 
-    return {
-        "questions": worksheet.questions,
-        "answers": worksheet.answers,
-        "topics": worksheet.topics,
-        "text": pickle.loads(worksheet.text)
-    }
+#     return {
+#         "questions": worksheet.questions,
+#         "answers": worksheet.answers,
+#         "topics": worksheet.topics,
+#         "text": pickle.loads(worksheet.text)
+#     }
 
 
 
-@app.post("/vocabs/correctVocab")
-async def correctVocab(text:VocabAnswer, language:str) -> str:
-    return correct_vocab(text)
+# @app.post("/vocabs/correctVocab")
+# async def correctVocab(text:VocabAnswer, language:str) -> str:
+#     return correct_vocab(text)
 
 @app.post("/vocabs/insertVocabs")
 async def insertVocabs(vocabs:VocabularyList, language:str, db:Session = Depends(get_db)) -> bool:

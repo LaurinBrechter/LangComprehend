@@ -1,20 +1,37 @@
 "use client";
 import React, { FC } from 'react'
 import { useState } from 'react';
+import { useFormState } from 'react-dom';
+import correctAnswer from '../actions/correctAnswer';
 
 export interface QAProps {
   questions: string[]
   answers: string[]
 }
 
-function handleSubmit(event: any) {
-  event.preventDefault();
-  console.log(event.target.elements[0].value)
-}
+// async function handleSubmit(event: any) {
+//   event.preventDefault();
+
+//   const msg = console.log(event.target[0].value)
+
+//   const res = await fetch('/api/correction', {
+//     method: 'POST',
+//     body: JSON.stringify({ "msg": msg }),
+//     headers: {
+//       'Content-Type': 'application/json'
+//     }
+//   })
+
+//   const data = await res.json()
+
+//   console.log(data)
+// }
 
 
 const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
   const [questionActive, setQuestionActive] = useState(0)
+
+  const [state, formAction] = useFormState(correctAnswer, null)
 
   return (
     <div>
@@ -28,8 +45,8 @@ const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
                     <div>
                       {props.questions.at(questionActive)}
                     </div>
-                    <form onSubmit={handleSubmit} className='flex mt-3 gap-2'>
-                      <textarea className="textarea textarea-bordered w-full" placeholder="Your Answer"></textarea>
+                    <form action={formAction} className='flex mt-3 gap-2'>
+                      <textarea className="textarea textarea-bordered w-full" placeholder="Your Answer" name='user-msg'></textarea>
                       <button type='submit' className="btn">Submit</button>
                     </form>
                   </div>
@@ -37,13 +54,20 @@ const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
             })
           }
         </div>
-        <div className="flex justify-center w-full py-2 gap-2">
+        <div className="flex justify-center w-full py-2 gap-2 items-center">
           {
             props.questions.map((question: string, idx: number) => {
               return (
-                <a href={"#item" + (idx + 1)} className="btn btn-xs">{"Question " + (idx + 1)}</a>)
+                <a
+                  href={"#item" + (idx + 1)}
+                  className={"btn" + (idx === questionActive ? "" : " btn-sm")}
+                  onClick={() => setQuestionActive(idx)}
+                  key={"question" + (idx + 1)}>{"Question " + (idx + 1)}</a>)
             })
           }
+        </div>
+        <div>
+          {state?.response ? state.response : ""}
         </div>
       </div>
     </div>

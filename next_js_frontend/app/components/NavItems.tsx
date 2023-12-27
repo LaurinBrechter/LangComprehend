@@ -27,7 +27,7 @@ const NavItems = () => {
             {
                 paths.map((path) => {
                     return (
-                        <Link href={path.path} className={pathname == path.path ? "text-black" : "text-white"}>{path.name}</Link>
+                        <Link href={path.path} className={pathname == path.path ? "text-black" : "text-white"} key={path.path}>{path.name}</Link>
                     )
                 })
             }

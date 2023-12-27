@@ -1,26 +1,26 @@
-"use server";
+// "use server";
 
-import React from 'react'
-import { PrismaClient } from '@prisma/client'
+// import React from 'react'
+// import { PrismaClient } from '@prisma/client'
 
 
-const getText = async (videoId: number) => {
+// const getText = async (videoId: number) => {
   
-    const prisma = new PrismaClient()
+//     const prisma = new PrismaClient()
   
-    const data = await prisma.videos.findUnique({
-        where: {
-            id: videoId
-        }
-    })
+//     const data = await prisma.videos.findUnique({
+//         where: {
+//             id: videoId
+//         }
+//     })
 
-    const videoText = data?.videoText?.toString("utf8")
+//     const videoText = data?.videoText?.toString("utf8")
 
-    return videoText
+//     return videoText
 
-    return (
-    <div>getText</div>
-  )
-}
+//     return (
+//     <div>getText</div>
+//   )
+// }
 
-export default getText
+// export default getText
