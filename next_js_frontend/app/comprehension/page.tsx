@@ -1,13 +1,31 @@
 import React from 'react'
 import { getVideoData } from '../actions/getVideoData';
+import { PrismaClient } from '@prisma/client';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '../api/auth/[...nextauth]/route';
+import { redirect } from 'next/navigation';
 
-const Comprehension = () => {
+const Comprehension = async () => {
 
+  const prisma = new PrismaClient()
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect("/api/auth/signin")
+  }
+
+  const uid = await prisma.user.findUnique({
+    where: {
+      email: session.user.email
+    }
+  })
+
+  const withUserId = getVideoData.bind(null, uid.id)
 
   return (
     <div className='p-10 h-[90%]'>
       <div className='w-full h-full flex justify-center items-center'>
-        <form className='bg-gray-300 p-3 flex items-center gap-4 h-[10%]' action={getVideoData}>
+        <form className='bg-gray-300 p-3 flex items-center gap-4 h-[10%]' action={withUserId}>
           <button className='btn'>Generate</button>
           <select id="text-source" className="select max-w-xs text-black" defaultValue={"yt"} name='text-source'>
             <option value={"pdf"}>PDF</option>

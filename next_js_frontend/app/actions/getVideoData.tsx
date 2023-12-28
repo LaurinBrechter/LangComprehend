@@ -3,8 +3,10 @@
 import { PrismaClient } from '@prisma/client';
 import { redirect } from 'next/navigation';
 
-export const getVideoData = async (formData: FormData) => {
+export const getVideoData = async (userId: string, formData: FormData) => {
   "use server"
+
+  console.log(userId)
 
   const prisma = new PrismaClient()
 
@@ -19,7 +21,8 @@ export const getVideoData = async (formData: FormData) => {
   const result = await prisma.worksheets.create({
     data: {
       language: language,
-      text: Buffer.from(data.video_text, "utf8")
+      text: Buffer.from(data.video_text, "utf8"),
+      userId: userId,
     }
   })
 

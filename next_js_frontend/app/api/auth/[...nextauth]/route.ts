@@ -32,16 +32,16 @@ export const authOptions: NextAuthOptions = {
     ],
     // database: process.env.DATABASE_URL
 
-    // callbacks: {
-    //     async jwt({ token, user }) {
-    //         if (user) token.role = user.role
-    //         return token
-    //     },
-    //     async session({ session, token }) {
-    //         if (session?.user) session.user.role = token.role
-    //         return session
-    //     }
-    // },
+    callbacks: {
+        async jwt({ token, user }) {
+            if (user) token.role = user.role
+            return token
+        },
+        async session({ session, token }) {
+            // if (session?.user) session.user.role = token.role
+            return session
+        }
+    },
     adapter: PrismaAdapter(prisma)
 }
 
