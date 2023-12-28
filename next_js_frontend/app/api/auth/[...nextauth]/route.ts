@@ -1,8 +1,12 @@
-import NextAuth from 'next-auth';
+import NextAuth, { NextAuthOptions } from 'next-auth';
 import GithubProvider from 'next-auth/providers/github';
 import GoogleProvider from 'next-auth/providers/google';
+import { PrismaClient } from '@prisma/client';
+import { PrismaAdapter } from '@auth/prisma-adapter';
 
-export const OPTIONS = {
+const prisma = new PrismaClient()
+
+export const authOptions: NextAuthOptions = {
     providers: [
         GithubProvider({
             profile(profile) {
@@ -28,19 +32,18 @@ export const OPTIONS = {
     ],
     // database: process.env.DATABASE_URL
 
-    callbacks: {
-        async jwt({ token, user }) {
-            if (user) token.role = user.role
-            return token
-        },
-        async session({ session, token }) {
-            if (session?.user) session.user.role = token.role
-            return session
-        }
-    }
-
+    // callbacks: {
+    //     async jwt({ token, user }) {
+    //         if (user) token.role = user.role
+    //         return token
+    //     },
+    //     async session({ session, token }) {
+    //         if (session?.user) session.user.role = token.role
+    //         return session
+    //     }
+    // },
+    adapter: PrismaAdapter(prisma)
 }
 
-
-const handler = NextAuth(OPTIONS)
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST }

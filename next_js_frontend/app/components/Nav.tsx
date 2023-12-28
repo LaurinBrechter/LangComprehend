@@ -3,11 +3,11 @@ import Sidebar from "./Sidebar.tsx"
 import SearchBar from "./SearchBar.tsx"
 import NavItems from "./NavItems.tsx"
 import { getServerSession } from "next-auth"
+import { authOptions } from "../api/auth/[...nextauth]/route.ts"
 
 const Nav = async () => {
 
-  const session = await getServerSession()
-  console.log("session:", session)
+  const session = await getServerSession(authOptions)
 
   return (
     <header className="bg-gray-600 text-gray-100 h-[10%] flex items-center">
