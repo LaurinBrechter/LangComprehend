@@ -13,8 +13,8 @@ const WsGenerateForm: FC<WorksheetProps> = (props): JSX.Element => {
         <div>
             <form className='bg-gray-300 p-3 flex flex-col items-center gap-4 h-[10%] w-full' action={actionUpdated}>
                 <button className='btn'>Generate</button>
-                <input id="worksheet-name" type="text" placeholder="Name your worksheet" className="input" name="worksheet-name" />
-                <input type="number" placeholder="Number of Questions" className="input w-full max-w-xs" id='num-questions' name="num-questions" />
+                <input id="worksheet-name" type="text" placeholder="Name your worksheet" className="input" name="worksheet-name" required />
+                <input type="number" placeholder="Number of Questions" className="input w-full max-w-xs" id='num-questions' name="num-questions" required />
                 <input type="hidden" name="language" value={"fr"} />
             </form>
         </div>

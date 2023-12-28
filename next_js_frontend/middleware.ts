@@ -4,7 +4,9 @@ import { NextResponse } from "next/server";
 
 export default withAuth(function middleware(req) {
     console.log(req.nextUrl.pathname)
+    console.log("middleware")
+
     // console.log(req.nextauth.token.role)
 });
 
-export const config = { mathcher: ["/CreateUser"] }
+export const config = { matcher: ["/comprehension", "/library", "/library/:path*"] }

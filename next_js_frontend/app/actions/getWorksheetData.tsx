@@ -23,7 +23,7 @@ async function getWorksheet(id: number, text: string, language: string, formData
   })
   const data = await res.json()
 
-  console.log(data)
+  // console.log(data)
 
   await prisma.worksheets.update({
     where: {

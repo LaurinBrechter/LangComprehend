@@ -4,9 +4,9 @@ import Link from 'next/link'
 
 export interface WorksheetProps {
   id: number
-  text: string | undefined
+  text: string
   worksheet_name: string | null
-  language: string | null
+  language: string
 }
 
 

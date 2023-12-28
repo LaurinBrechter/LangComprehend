@@ -16,14 +16,24 @@ model vocabs {
 
 model worksheets {
   id         Int      @id @default(autoincrement())
-  language   String?  @db.VarChar
+  language   String   @db.VarChar
   questions  String[] @db.VarChar
-  answers    String[] @db.VarChar
+  // answers    String[] @db.VarChar
   topics     String[] @db.VarChar
-  text       Bytes?
+  text       Bytes
   created_at DateTime @default(now())
   name       String?  @db.VarChar
   visibility Boolean  @default(false)
+  user       users    @relation(fields: [user_id], references: [id])
+  user_id    Int
+}
+
+model users {
+  id         Int          @id @default(autoincrement())
+  email      String       @unique
+  created_at DateTime     @default(now())
+  name       String?      @db.VarChar
+  worksheets worksheets[]
 }
 
 // model videos {

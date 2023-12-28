@@ -6,7 +6,6 @@ import correctAnswer from '../actions/correctAnswer';
 
 export interface QAProps {
   questions: string[]
-  answers: string[]
 }
 
 // async function handleSubmit(event: any) {

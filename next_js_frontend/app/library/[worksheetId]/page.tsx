@@ -34,13 +34,15 @@ export default async function WorksheetDetails({ params }: { params: { worksheet
           {result.topics.map((topic: string) => { return (<button className="btn btn-sm">{topic}</button>) })}
         </div>
         {result.name ?
-          <QuestionAnswer questions={result.questions} answers={result.answers} /> :
+          <QuestionAnswer questions={result.questions} /> :
           <div className='w-full'>
             {<WsGenerateForm language={lang} id={result.id} worksheet_name={result.name} text={result.text?.toString()} />}
           </div>}
       </div>
-      <div className="w-4/6 bg-slate-200 h-[80%] overflow-scroll p-4 rounded-lg">
-        {text}
+      <div className="w-4/6 bg-slate-100 h-[80%] overflow-scroll p-4 rounded-lg flex flex-wrap gap-2">
+        {
+          text.split(" ").map((char: string) => <p className="font-medium">{char}</p>)
+        }
       </div>
     </div>
 
