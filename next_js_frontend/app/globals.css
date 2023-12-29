@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+body {
+  background-color: white;
+  color: black;
+}
+
+@layer base {
+  h1 {
+    @apply font-bold text-3xl
+  }
+
+  a {
+    @apply font-bold
+  }
+}

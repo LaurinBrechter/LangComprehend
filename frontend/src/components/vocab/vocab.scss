@@ -1,0 +1,45 @@
+.vocab-page {
+    display: flex;
+    flex-direction: column;
+    margin: 20px;
+
+    > h3 {
+        margin-bottom: 5px;
+        margin-left: 5px;
+    }
+}
+
+.voc-list {
+    height: 100px;
+    overflow: scroll;
+    display: flex;
+    flex-wrap: wrap;
+    width: 20%;
+    height: 100%;
+}
+
+
+.progress-container {
+    height: 10vh;
+}
+
+.vocab-trainer-container {
+    height: 50vh;
+    padding: 0px 20px 0px 20px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.trainer-settings {
+    border-left: 1px solid green;
+    width: 20%;
+
+    > h4 {
+        margin-left: 10px;
+    }
+}
+
+.lang-select {
+    width: 100px;
+}

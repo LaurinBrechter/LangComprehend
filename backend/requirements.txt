@@ -1,0 +1,11 @@
+uvicorn
+fastapi
+spacy
+sqlalchemy
+openai
+langchain
+python-dotenv
+deepl
+tiktoken
+psycopg2
+youtube-transcript-api
