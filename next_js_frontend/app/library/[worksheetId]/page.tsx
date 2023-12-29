@@ -1,3 +1,5 @@
+"use server"
+
 import { PrismaClient } from "@prisma/client"
 import { notFound } from "next/navigation"
 import QuestionAnswer from "@/app/components/QuestionAnswer"
@@ -41,7 +43,7 @@ export default async function WorksheetDetails({ params }: { params: { worksheet
       </div>
       <div className="w-4/6 bg-slate-100 h-[80%] overflow-scroll p-4 rounded-lg flex flex-wrap gap-2">
         {
-          text.split(" ").map((char: string) => <p className="font-medium">{char}</p>)
+          text.split(" ").map((char: string) => <p className="font-medium hover:bg-violet-600">{char}</p>)
         }
       </div>
     </div>
