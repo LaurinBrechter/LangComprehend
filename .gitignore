@@ -3,9 +3,7 @@ db/
 langcomprehend-react/
 __pycache__/
 *.ipynb
-api_backend/api_venv/
+backend/.venv/
 lc/backend/
 .env
-.venv
-node_modules
-.next
+rust_backend

@@ -1,0 +1,96 @@
+.text-container {
+    overflow: hidden;
+    width: 65vw;
+    height: 80vh;
+    padding: 20px;
+    margin-right: 20px;
+
+    > textarea {
+      width: 100%;
+      height: 85%;
+    }
+  }
+
+// .text-container::-webkit-scrollbar {
+//   display: none;
+// }
+
+.vocab-container {
+  width: 10vw;
+  padding: 20px;
+  overflow: scroll;
+}
+
+.voc {
+  background-color: green;
+  border-radius: 0.5rem;
+  padding: 5px;
+  margin: 5px;
+  text-align: center;
+}
+
+
+.text-output {
+  background-color: rgb(255, 255, 255);
+  border: 1px solid grey;
+  color: rgb(0, 0, 0);
+  font-size: large;
+  text-align: block;
+  font-family: 'Roboto';
+}
+
+// .text-output::-webkit-scrollbar {
+//   display: none;
+// }
+
+.comprehension {
+  margin: 20px;
+}
+
+.text-voc-container {
+    display: flex;
+}
+
+.vocab-container::-webkit-scrollbar {
+  display: none;
+}
+
+// input {
+//   background-color: #3a3a3a;
+//   border-radius: 12px;
+//   padding: 6px 10px 6px;
+//   border-width: 0px;
+// }
+
+form {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.worksheet-container {
+  padding: 20px;
+  height: 60vh;
+}
+
+.topic-list {
+  display:flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  gap:5px;
+
+  > div {
+    padding: 5px 10px;
+    border-radius: 10px;
+    border: 1px solid grey
+  }
+
+  > div:hover {
+    cursor: pointer;
+  }
+}
+
+.question-accordion-container {
+  margin-top: 5px
+}

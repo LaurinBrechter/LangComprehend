@@ -2,16 +2,16 @@ name: Fast API docker build push
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "vocab-trainer-feature-branch"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "vocab-trainer-feature-branch"]
 
 permissions:
   contents: read
 
 jobs:
   
-  test:
+  test_api:
     runs-on: ubuntu-latest
 
     steps:
@@ -25,12 +25,20 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r api_backend/requirements.txt
       - name: Run tests
-        run: python -m pytest api_backend/tests
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VOC_COLL_NAME: vocabs
+          DB_NAME: test
+          MONGO_URI: ${{ secrets.MONGO_URI }}
+          WORK_SHEET_COLL_NAME: worksheets
 
-  build:
+        run: python -m pytest
+
+  build_api:
     runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
       - name: Build docker image for FastAPI
         run: docker build -t laurin_brechter/fastapi-docker:0.0.1 ./api_backend
+      
