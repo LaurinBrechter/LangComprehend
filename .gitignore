@@ -7,3 +7,4 @@ backend/.venv/
 lc/backend/
 .env
 rust_backend
+node_modules

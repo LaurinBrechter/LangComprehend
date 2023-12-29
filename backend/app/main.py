@@ -1,19 +1,15 @@
-import datetime
-import json
 from fastapi import FastAPI, Query, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 import spacy
-import pickle
 from lib.data_structs import *
-from lib.funcs import *
-from typing import Annotated
 from dotenv import load_dotenv
 import os
 import deepl
 from lib.database import SessionLocal, engine
 from lib import dbModels
-from lib.dbModels import WorksheetDB, VocabsDB
+from lib.dbModels import VocabsDB
 from sqlalchemy.orm import Session
+from lib.funcs import get_qa_topic, get_video_text
 
 origins = [
     "http://localhost:3000",
@@ -86,7 +82,6 @@ async def generateWorksheet(
     text:Text, 
     num_questions:int, 
     language:str, 
-    db:Session = Depends(get_db),
     nlp = Depends(get_nlp)
     ) -> dict:
     
@@ -94,65 +89,6 @@ async def generateWorksheet(
 
     return qa
 
-    res_json = json.loads(qa)
-
-    worksheet = res_json.copy()
-    worksheet["text"] = text.text
-    worksheet["language"] = language
-    worksheet["inserted_at"] = datetime.datetime.now()
-    
-    text_bytes = pickle.dumps(text.text)
-
-
-    return {
-        "questions": worksheet["questions"],
-        "answers": worksheet["answers"],
-        "topics": worksheet["topics"],
-    }
-
-    v = list(get_vocab(pipelines[language], text.text, ["PUNCT", "SPACE", "NUM"])["vocab"].keys())
-    
-    vocabs = [VocabsDB(language=language, vocabs=vocab) for vocab in v]
-    
-    db.add_all(vocabs)
-
-    return res_json
-
-
-# @app.get("/worksheet/getWorksheet")
-# async def getWorksheet(worksheet_name:str, db:Session = Depends(get_db)) -> dict:
-    
-#     worksheet = db.query(WorksheetDB).filter(WorksheetDB.name == worksheet_name).first()
-
-#     if not worksheet:
-#         raise HTTPException(status_code=404, detail="No Worksheet found")
-
-#     return {
-#         "questions": worksheet.questions,
-#         "answers": worksheet.answers,
-#         "topics": worksheet.topics,
-#         "text": pickle.loads(worksheet.text)
-#     }
-
-
-
-# @app.post("/vocabs/correctVocab")
-# async def correctVocab(text:VocabAnswer, language:str) -> str:
-#     return correct_vocab(text)
-
-@app.post("/vocabs/insertVocabs")
-async def insertVocabs(vocabs:VocabularyList, language:str, db:Session = Depends(get_db)) -> bool:
-
-    vocabs = [VocabsDB(language=language, vocabs=vocab) for vocab in vocabs.vocs_list]
-    
-    db.add_all(vocabs)
-    db.commit()
-
-    return True
-
-# @app.get("/vocabs/getExamples")
-# async def getExamples(n_examples:int) -> dict:
-#     return {"examples": ["Je suis un homme", "Je suis une femme", "Je suis un garçon", "Je suis une fille"]}
 
 @app.get("/vocabs/total")
 async def getTotalVocabs(u_id:int, db:Session = Depends(get_db)) -> int:
