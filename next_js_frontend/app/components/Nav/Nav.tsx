@@ -1,9 +1,10 @@
 import Link from "next/link"
 import Sidebar from "./Sidebar.tsx"
+// import SearchBar from "./SearchBar.tsx"
 import SearchBar from "./SearchBar.tsx"
 import NavItems from "./NavItems.tsx"
 import { getServerSession } from "next-auth"
-import { authOptions } from "../api/auth/[...nextauth]/route.ts"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route.ts"
 
 const Nav = async () => {
 

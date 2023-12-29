@@ -20,20 +20,26 @@ const NavItems = () => {
             name: "Comprehension",
             path: "/comprehension"
         },
+        {
+            name: "Chat",
+            path: "/chat"
+        }
     ]
+    const base_class = "text-2xl hover:text-gray-300"
 
     return (
         <div className='bg-gray-600 flex gap-6'>
             {
                 paths.map((path) => {
                     return (
-                        <Link href={path.path} className={pathname == path.path ? "text-black" : "text-white"} key={path.path}>{path.name}</Link>
+                        <Link
+                            href={path.path}
+                            className={pathname == path.path ? "text-black " + base_class : "text-white " + base_class}
+                            key={path.path}>{path.name}
+                        </Link>
                     )
                 })
             }
-            {/* <Link href="/" className={pathname=="/" ? "text-black" : "text-white"}>LangComprehend</Link>
-        <Link href="/library">Library</Link>
-        <Link href="/comprehension">Comprehension</Link> */}
         </div>
     )
 }

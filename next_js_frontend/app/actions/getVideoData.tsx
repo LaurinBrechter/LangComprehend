@@ -6,8 +6,6 @@ import { redirect } from 'next/navigation';
 export const getVideoData = async (userId: string, formData: FormData) => {
   "use server"
 
-  console.log(userId)
-
   const prisma = new PrismaClient()
 
   let language = formData.get("target-language") as string
