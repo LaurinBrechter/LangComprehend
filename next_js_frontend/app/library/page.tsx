@@ -37,9 +37,9 @@ const Library = async ({ searchParams }: { searchParams: { language: string, pag
     })
 
     return (
-        <div className='m-4'>
+        <div className='p-4 h-[90%] bg-slate-50 flex flex-col'>
             <LibrarySearch />
-            <div className='grid grid-cols-4 gap-4 p-4 bg-slate-50'>
+            <div className='grid grid-cols-4 gap-7 p-6 bg-slate-50 grow '>
                 {
                     db_res.map(item => <Worksheet
                         text={item.text?.toString("utf8").slice(0, 100) + "..."}
@@ -48,6 +48,16 @@ const Library = async ({ searchParams }: { searchParams: { language: string, pag
                         language={item.language}
                         topics={item.topics}
                     />)}
+            </div>
+            <div className='flex items-center justify-center'>
+                <div className="join">
+                    <button className="join-item btn">Previous</button>
+                    <button className="join-item btn">1</button>
+                    <button className="join-item btn btn-active">2</button>
+                    <button className="join-item btn">3</button>
+                    <button className="join-item btn">4</button>
+                    <button className="join-item btn">Next</button>
+                </div>
             </div>
         </div>
     )

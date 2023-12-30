@@ -18,13 +18,19 @@ const Nav = async () => {
           <>
             <Sidebar />
             <NavItems />
-            <Link href="/api/auth/signout?callbackUrl=/">Logout</Link>
-            <SearchBar />
+            <div className="flex justify-end grow">
+              <Link href="/api/auth/signout?callbackUrl=/" className="text-2xl btn">
+                Logout
+              </Link>
+            </div>
+            {/* <SearchBar /> */}
           </>
         ) : (
           <>
-            <Link href="/">LangComprehend</Link>
-            <Link href="/api/auth/signin">Login</Link>
+            <Link href="/" className="text-2xl">LangComprehend</Link>
+            <div className="flex justify-end grow">
+              <Link href="/api/auth/signin" className="btn text-2xl">Login</Link>
+            </div>
           </>
         )}
       </nav>

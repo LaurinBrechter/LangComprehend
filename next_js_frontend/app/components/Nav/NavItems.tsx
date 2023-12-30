@@ -25,23 +25,27 @@ const NavItems = () => {
             path: "/chat"
         }
     ]
-    const base_class = "text-2xl hover:text-gray-300"
+    const base_class = "text-2xl btn"
 
     return (
-        <div className='bg-gray-600 flex gap-6'>
+        <div className='bg-gray-600 flex items-center gap-4'>
             {
                 paths.map((path) => {
                     return (
-                        <Link
-                            href={path.path}
-                            className={pathname == path.path ? "text-black " + base_class : "text-white " + base_class}
-                            key={path.path}>{path.name}
-                        </Link>
+                        <div>
+                            <Link
+                                href={path.path}
+                                className={pathname == path.path ? base_class + " btn-md" : base_class + " btn-sm"}
+                                key={path.path}>{path.name}
+                            </Link>
+                        </div>
                     )
                 })
             }
         </div>
     )
+
+
 }
 
 export default NavItems

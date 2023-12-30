@@ -16,10 +16,14 @@ const Comprehension = async () => {
 
 
   return (
-    <div className="join h-[93%] flex items-center justify-center">
-      <Link className="btn join-item" href={"/comprehension/youtube"}>Youtube</Link>
-      <Link className="btn join-item" href={"/comprehension/pdf"}>PDF</Link>
-      <Link className="btn join-item" href={"/comprehension/raw-text"}>Raw Text</Link>
+    <div className="join h-[93%] flex items-center justify-center flex-col">
+      <div className='text-3xl font-bold' >Create New Worksheet</div>
+      <div>1. Choose a Source</div>
+      <div className='join'>
+        <Link className="btn join-item" href={"/comprehension/youtube"}>Youtube</Link>
+        <Link className="btn join-item" href={"/comprehension/pdf"}>PDF</Link>
+        <Link className="btn join-item" href={"/comprehension/raw-text"}>Raw Text</Link>
+      </div>
     </div>
   )
 
