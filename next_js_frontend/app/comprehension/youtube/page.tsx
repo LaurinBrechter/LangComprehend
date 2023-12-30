@@ -32,12 +32,14 @@ const page = async () => {
                         <option value={"yt"}>Youtube</option>
                     </select>
                     <input id="video-url" type="text" placeholder="Youtube Link" className="input" name="youtube-link" required />
-                    <select id="target-language" className="select max-w-xs text-black" defaultValue={"en"} name='target-language'>
-                        <option value={"fr"}>Fench</option>
-                        <option value={"en"}>English</option>
-                        <option value={"de"}>German</option>
-                        <option value={"es"}>Spanish</option>
-                    </select>
+                    <div className="tooltip" data-tip="Here you can choose your target language (i.e. which you wnat to study) But your text can be in any langugage, we will translate it for you ;).">
+                        <select id="target-language" className="select max-w-xs text-black" defaultValue={"en"} name='target-language'>
+                            <option value={"fr"}>Fench</option>
+                            <option value={"en"}>English</option>
+                            <option value={"de"}>German</option>
+                            <option value={"es"}>Spanish</option>
+                        </select>
+                    </div>
                 </form>
             </div>
             <div>

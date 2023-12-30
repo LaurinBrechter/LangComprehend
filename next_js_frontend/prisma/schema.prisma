@@ -15,17 +15,19 @@ model vocabs {
 }
 
 model worksheets {
-  id         Int      @id @default(autoincrement())
-  language   String   @db.VarChar
-  questions  String[] @db.VarChar
+  id           Int      @id @default(autoincrement())
+  language     String   @db.VarChar
+  questions    String[] @db.VarChar
   // answers    String[] @db.VarChar
-  topics     String[] @db.VarChar
-  text       Bytes
-  created_at DateTime @default(now())
-  name       String?  @db.VarChar
-  visibility Boolean  @default(false)
-  user       User     @relation(fields: [userId], references: [id])
-  userId     String
+  topics       String[] @db.VarChar
+  text         Bytes
+  created_at   DateTime @default(now())
+  name         String?  @db.VarChar
+  visibility   Boolean  @default(false)
+  user         User     @relation(fields: [userId], references: [id])
+  userId       String
+  chunkStartId Int[]    @default([])
+  chunkEndId   Int[]    @default([])
 }
 
 model User {

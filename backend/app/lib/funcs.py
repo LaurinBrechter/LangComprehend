@@ -75,12 +75,22 @@ def split_into_paras(text, nlp, num_paragraphs=3):
     doc = nlp(text)
     sents = list(doc.sents)
     paras = []
+    
     step_size = len(sents)//num_paragraphs
+    chunk_start_idx = []
+    chunk_end_idx = []
 
-    for idx in range(0, len(sents), step_size+1):
-        paras.append([i.text for i in sents[idx:idx+step_size+1]])
+    step_size = len(sents) // num_paragraphs
+    paragraphs = []
 
-    return [' '.join(i) for i in paras]
+    for idx in range(0, len(sents), step_size):
+        paragraph = " ".join([i.text for i in sents[idx:idx+step_size]])
+        paragraphs.append(paragraph)
+
+        chunk_start_idx.append(sents[idx].start_char)
+        chunk_end_idx.append(sents[idx+step_size-1].end_char)
+
+    return paragraphs, chunk_start_idx, chunk_end_idx
 
 
 
@@ -106,7 +116,7 @@ def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dic
             }
             """
 
-    paras = split_into_paras(text.text, nlp[language], num_paragraphs=num_questions)
+    paras, chunk_start_idx, chunk_end_idx = split_into_paras(text.text, nlp[language], num_paragraphs=num_questions)
 
     load_dotenv()
     model = ChatOpenAI(temperature=0)
@@ -115,7 +125,7 @@ def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dic
     for para in paras:
 
         inp = f"""
-            Please come up with a comprehension question in {language} and a topic about the following paragraph:
+            Please come up with a comprehension question in {language} and a topic about the following paragraph. The topic should be at most 3 words:
             ----------------
             {para}
             ----------------
@@ -127,6 +137,9 @@ def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dic
         qts["questions"].append(qt["question"])
         qts["topics"].append(qt["topic"])
         qts["chunks"].append(para)
+        qts["chunk_start_idx"] = chunk_start_idx
+        qts["chunk_end_idx"] = chunk_end_idx
+
 
     return qts
 

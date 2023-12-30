@@ -23,7 +23,6 @@ async function getWorksheet(id: number, text: string, language: string, formData
   })
   const data = await res.json()
 
-  // console.log(data)
 
   await prisma.worksheets.update({
     where: {
@@ -32,7 +31,9 @@ async function getWorksheet(id: number, text: string, language: string, formData
     data: {
       questions: data.questions,
       topics: data.topics,
-      name: worksheet_name
+      name: worksheet_name,
+      chunkEndId: data.chunk_end_idx,
+      chunkStartId: data.chunk_start_idx
     }
   })
 
