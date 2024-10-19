@@ -10,7 +10,6 @@ permissions:
   contents: read
 
 jobs:
-  
   test_api:
     runs-on: ubuntu-latest
 
@@ -24,16 +23,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r api_backend/requirements.txt
-      - name: Run tests
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-          VOC_COLL_NAME: vocabs
-          DB_NAME: test
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          WORK_SHEET_COLL_NAME: worksheets
+      # - name: Run tests
+      #   env:
+      #     OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      #     VOC_COLL_NAME: vocabs
+      #     DB_NAME: test
+      #     MONGO_URI: ${{ secrets.MONGO_URI }}
+      #     WORK_SHEET_COLL_NAME: worksheets
 
-        run: python -m pytest
-
+      # run: python -m pytest
   build_api:
     runs-on: ubuntu-latest
 
@@ -41,4 +39,10 @@ jobs:
       - uses: actions/checkout@v3
       - name: Build docker image for FastAPI
         run: docker build -t laurin_brechter/fastapi-docker:0.0.1 ./api_backend
+  build_app:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      
       

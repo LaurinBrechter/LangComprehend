@@ -1,3 +1,4 @@
+import random
 import json
 from langchain.document_loaders import YoutubeLoader
 import tiktoken
@@ -11,7 +12,7 @@ from lib.data_structs import (
 )
 from dotenv import load_dotenv
 from langchain.chat_models import ChatOpenAI
-
+from spacy.language import Language
 
 
 def cut_text(text, frac):
@@ -70,21 +71,27 @@ def correct_vocab(vocab_solution:VocabAnswer) -> str:
 
 
 
-def split_into_paras(text, nlp, num_paragraphs=3):
+def split_into_paras(text:str, nlp: Language, num_questions:int=3, question_length:int=3):
+    
+    doc = nlp.__call__(text)
+    spans = list(doc.sents)
+    span_array = [t.text for t in spans]
+    num_spans = len(spans)
 
-    doc = nlp(text)
-    sents = list(doc.sents)
-    paras = []
-    step_size = len(sents)//num_paragraphs
+    question_start_idxs = []
+    question_end_idxs = []
 
-    for idx in range(0, len(sents), step_size+1):
-        paras.append([i.text for i in sents[idx:idx+step_size+1]])
-
-    return [' '.join(i) for i in paras]
+    for i in range(num_questions):
+        question_start_idx = random.randint(0, num_spans-question_length)
+        question_start_idxs.append(question_start_idx)
+        question_end_idxs.append(question_start_idx + question_length)
 
 
+    return span_array, question_start_idxs, question_end_idxs
 
-def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dict:
+
+
+def get_qa_topic(num_questions:int, text:Text, language:str, nlp:dict[str, Language], dummy=True) -> dict:
 
     if dummy:
         return """{
@@ -106,18 +113,18 @@ def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dic
             }
             """
 
-    paras = split_into_paras(text.text, nlp[language], num_paragraphs=num_questions)
+    span_array, question_start_idxs, question_end_idxs = split_into_paras(text.text, nlp[language], num_questions)
 
     load_dotenv()
     model = ChatOpenAI(temperature=0)
     qts = {"questions":[], "topics":[], "chunks":[]}
 
-    for para in paras:
+    for i in  range(num_questions):
 
         inp = f"""
-            Please come up with a comprehension question in {language} and a topic about the following paragraph:
+            Please come up with a comprehension question in {language} and a topic about the following paragraph. The topic should be at most 3 words:
             ----------------
-            {para}
+            {span_array[question_start_idxs[i]:question_end_idxs[i]]}
             ----------------
             Output your response as a json with the keys 'question' and 'topic'.
         """
@@ -126,12 +133,14 @@ def get_qa_topic(num_questions, text:Text, language:str, nlp, dummy=True) -> dic
 
         qts["questions"].append(qt["question"])
         qts["topics"].append(qt["topic"])
-        qts["chunks"].append(para)
+        qts["chunks"].append(" ".join(span_array[question_start_idxs[i]:question_end_idxs[i]]))
+    
+    qts["chunk_start_idx"] = question_start_idxs
+    qts["chunk_end_idx"] = question_end_idxs
+    qts["text_array"] = span_array
 
     return qts
-
-
-                
+    
     
 def get_vocab(pipeline, text:str, irrel:list[str]) -> dict:
     doc = pipeline(text)
