@@ -8,3 +8,7 @@ lc/backend/
 .env
 rust_backend
 node_modules
+backend
+frontend
+next_js_frontend
+.next
