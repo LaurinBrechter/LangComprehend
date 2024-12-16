@@ -1,7 +1,10 @@
 import './globals.css'
 import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
-import Nav from '@/components/Nav/Nav'
+import { Header } from '@/components/Header/Header'
+import NewResource from '@/components/NewResource'
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -16,13 +19,16 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
 
+  const session = await getServerSession(authOptions)
+
   return (
     <html lang="en" data-theme="light">
       <body className={inter.className}>
         {/* <SessionProvider session={session}> */}
         <div className='h-screen flex-col flex'>
-          <Nav />
+          <Header />
           {children}
+          {session?.user?.email && <NewResource email={session.user.email} />}
         </div>
         {/* </SessionProvider> */}
       </body>

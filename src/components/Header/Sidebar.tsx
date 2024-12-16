@@ -15,11 +15,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { worksheetsTable } from "@/db/schema";
 
 const Sidebar = async () => {
   const db = drizzle(process.env.DATABASE_URL!);
 
-  const all_ws = [];
+  const worksheets = await db.select().from(worksheetsTable);
 
   return (
       <Sheet>
@@ -29,19 +30,19 @@ const Sidebar = async () => {
             <SheetTitle>Your Worksheets</SheetTitle>
             <SheetDescription>
               <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content flex">
-                <h1>Your Worksheets</h1>
-                {all_ws.map((ws) => (
+                {worksheets.map((ws) => (
                   <li key={ws.id}>
                     <Link href={`/library/${ws.id}`}>{ws.name}</Link>
                   </li>
                 ))}
-                <Link href="/comprehension" className="btn mt-10">
-                  New Worksheet
+                
+              </ul>
+              <Link href="/comprehension" className="btn mt-10">
+                  <Button>New Worksheet</Button>
                 </Link>
                 <Link href="/chat" className="btn">
-                  Surprise Me
+                  <Button>Surprise Me</Button>
                 </Link>
-              </ul>
             </SheetDescription>
           </SheetHeader>
         </SheetContent>

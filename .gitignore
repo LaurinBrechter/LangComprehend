@@ -1,5 +1,4 @@
 lang_comprehend_venv/
-db/
 langcomprehend-react/
 __pycache__/
 *.ipynb
