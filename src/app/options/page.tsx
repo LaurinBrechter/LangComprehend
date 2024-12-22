@@ -8,7 +8,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -117,11 +116,6 @@ export default function Options() {
                         <SelectItem value="es">Spanish</SelectItem>
                       </SelectContent>
                     </Select>
-                    <FormDescription>
-                      You can manage email addresses in your{" "}
-                      <Link href="/examples/forms">email settings</Link>.
-                    </FormDescription>
-                    <FormMessage />
                   </FormItem>
                 )}
               />
