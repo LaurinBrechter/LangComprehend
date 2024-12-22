@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { type JSX } from 'react';
 import { FC } from 'react'
 import Link from 'next/link'
 import { Card, CardDescription, CardHeader, CardTitle } from './ui/card'

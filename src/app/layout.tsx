@@ -3,8 +3,8 @@ import type { Metadata } from 'next'
 import { Inter } from 'next/font/google'
 import { Header } from '@/components/Header/Header'
 import NewResource from '@/components/NewResource'
-import { getServerSession } from "next-auth"
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"
+import { auth } from "@/auth"
+import { Toaster } from '@/components/ui/toaster'
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -19,7 +19,7 @@ export default async function RootLayout({
   children: React.ReactNode
 }) {
 
-  const session = await getServerSession(authOptions)
+  const session = await auth()
 
   return (
     <html lang="en" data-theme="light">
@@ -30,6 +30,7 @@ export default async function RootLayout({
           {children}
           {session?.user?.email && <NewResource email={session.user.email} />}
         </div>
+        <Toaster />
         {/* </SessionProvider> */}
       </body>
     </html>
