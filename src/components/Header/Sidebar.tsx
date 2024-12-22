@@ -23,30 +23,29 @@ const Sidebar = async () => {
   const worksheets = await db.select().from(worksheetsTable);
 
   return (
-      <Sheet>
-        <SheetTrigger>Open</SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Your Worksheets</SheetTitle>
-            <SheetDescription>
-              <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content flex">
-                {worksheets.map((ws) => (
-                  <li key={ws.id}>
-                    <Link href={`/library/${ws.id}`}>{ws.name}</Link>
-                  </li>
-                ))}
-                
-              </ul>
-              <Link href="/comprehension" className="btn mt-10">
-                  <Button>New Worksheet</Button>
-                </Link>
-                <Link href="/chat" className="btn">
-                  <Button>Surprise Me</Button>
-                </Link>
-            </SheetDescription>
-          </SheetHeader>
-        </SheetContent>
-      </Sheet>
+    <Sheet>
+      <SheetTrigger>Open</SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Your Worksheets</SheetTitle>
+          <SheetContent>
+            <ul className="menu p-4 w-80 min-h-full bg-base-200 text-base-content flex">
+              {worksheets.map((ws) => (
+                <li key={ws.id}>
+                  <Link href={`/library/${ws.id}`}>{ws.name}</Link>
+                </li>
+              ))}
+            </ul>
+            <Link href="/comprehension" className="btn mt-10">
+              <Button>New Worksheet</Button>
+            </Link>
+            <Link href="/chat" className="btn">
+              <Button>Surprise Me</Button>
+            </Link>
+          </SheetContent>
+        </SheetHeader>
+      </SheetContent>
+    </Sheet>
   );
 };
 

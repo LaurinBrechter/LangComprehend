@@ -1,11 +1,10 @@
 import Link from "next/link";
 import Sidebar from "./Sidebar";
 import { Nav } from "./Nav";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import { auth } from "@/auth"
 
 export const Header = async () => {
-  const session = await getServerSession(authOptions);
+  const session = await auth()
 
   return (
     <header className="bg-white border-b">
