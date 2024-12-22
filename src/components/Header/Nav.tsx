@@ -21,13 +21,17 @@ export const Nav = ({ session }: { session: Session | null }) => {
       name: "Dashboard",
       path: "/dashboard",
     },
+    {
+      name: "Options",
+      path: "/options",
+    },
   ];
   return (
     <nav>
       <ul className="flex space-x-4 items-center">
         {paths.map((path) => {
           return (
-            <li>
+            <li key={path.name}>
               <Link
                 href={path.path}
                 className="text-sm font-medium text-gray-500 hover:text-gray-900"
