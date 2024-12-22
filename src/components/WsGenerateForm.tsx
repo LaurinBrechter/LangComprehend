@@ -1,7 +1,7 @@
 "use client"
 import { WorksheetProps } from './Worksheet'
 
-import React from 'react'
+import React, { type JSX } from 'react';
 import { FC } from 'react'
 import getWorksheet from '../actions/getWorksheetData'
 

@@ -1,7 +1,6 @@
 "use client";
-import React, { FC } from 'react'
+import React, { FC, useActionState, type JSX } from 'react';
 import { useState } from 'react';
-import { useFormState } from 'react-dom';
 import correctAnswer from '../actions/correctAnswer';
 
 export interface QAProps {
@@ -27,7 +26,7 @@ const giveHint = (event) => {
 const QuestionAnswer: FC<QAProps> = (props): JSX.Element => {
   const [questionActive, setQuestionActive] = useState(0)
 
-  const [state, formAction] = useFormState(correctAnswer, null)
+  const [state, formAction] = useActionState(correctAnswer, null)
 
   return (
     <div>
