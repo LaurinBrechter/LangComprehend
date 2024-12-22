@@ -1,10 +1,13 @@
 "use server";
 
-import { worksheetsTable } from '@/db/schema';
+import { resourceTable, worksheetsTable } from '@/db/schema';
 import { drizzle } from 'drizzle-orm/node-postgres';
 import { redirect } from 'next/navigation';
 import { getSubtitles } from 'youtube-captions-scraper';
-
+import { usersTable } from '@/db/schema'
+import { eq } from 'drizzle-orm'
+import { ImportYoutubeFormSchema } from '@/components/forms/ImportYoutubeVideoForm';
+import { z } from 'zod';
 
 function YouTubeGetID(url: string) {
   const video_id = url.split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/)/);
@@ -23,11 +26,11 @@ function YouTubeGetID(url: string) {
 
 
 
-export const getVideoData = async (userId: string, formData: FormData) => {
+export const getVideoData = async (data: z.infer<typeof ImportYoutubeFormSchema>, email: string) => {
   "use server"
 
-  const language = formData.get("target-language") as string
-  const url = formData.get("youtube-link") as string
+  const language = data.targetLanguage
+  const url = data.youtubeLink
 
   const yt_id = YouTubeGetID(url)
 
@@ -38,37 +41,26 @@ export const getVideoData = async (userId: string, formData: FormData) => {
     lang: language // default: `en`
   })
 
-  console.log(captions)
-
   let full_text = ""
 
   for (let i = 0; i < captions.length; i++) {
-    full_text += captions[i].text
+    full_text += captions[i].text + "---"
   }
-
-  console.log(full_text)
 
   const db = drizzle(process.env.DATABASE_URL!)
 
-  const worksheetData = {
-    language,
-    questions: [],
-    topics: [],
-    text: full_text,
+  const users = await db.select().from(usersTable).where(eq(usersTable.email, email))
+
+
+  const result = await db.insert(resourceTable).values({
     name: "Youtube Video",
-    userId,
-    visibility: true,
-    chunkStartId: [],
-    chunkEndId: [],
-    textArray: []
-  }
+    url: url,
+    userId: users[0].id,
+    text: full_text,
+  }).returning({resourceId: resourceTable.id})
 
-  const result = await db.insert(worksheetsTable).values({
-    ...worksheetData
-  }).returning({worksheetId: worksheetsTable.id})
+  console.log("Resource created")
 
-  console.log("Worksheet created")
-
-  redirect("/library/" + result[0].worksheetId)
+  // redirect("/library/" + result[0].resourceId)
 
 }
